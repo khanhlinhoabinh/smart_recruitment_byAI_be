@@ -2,13 +2,18 @@ package com.fourctc.tuyendungthongminh_be.repository;
 
 import com.fourctc.tuyendungthongminh_be.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.Optional;
+import org.springframework.stereotype.Repository;
 
-    public interface UserRepository extends JpaRepository<User, Long> {
+import java.util.List;
+import java.util.UUID;
 
-        // Tìm user theo email (dùng cho đăng nhập)
-        Optional<User> findByEmail(String email);
+@Repository
+public interface UserRepository extends JpaRepository<User, UUID> {
+    // Bạn có thể thêm các truy vấn tùy chỉnh ở đây nếu cần
 
-        // Kiểm tra email đã tồn tại (dùng cho đăng ký)
-        boolean existsByEmail(String email);
-    }
+    // Ví dụ: Tìm User theo email
+    User findByEmail(String email);
+
+    // Ví dụ: Tìm User theo status
+    List<User> findByStatus(User.Status status);
+}
