@@ -12,13 +12,12 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDTO {
-    private UUID userId;
-    private String fullName;
-    private String email;
-    private String phone;
-    private boolean isVerified;
-    private String role;
-    private String status;
-    private Timestamp createdAt;
+public class ApplicationHistoryDTO {
+    private UUID historyId;
+    private UUID applicationId;
+    private String oldStatus;
+    private String newStatus;
+    private UUID changedByUserId;
+    private String changedByFullName;
+    private Timestamp changedAt;
 }

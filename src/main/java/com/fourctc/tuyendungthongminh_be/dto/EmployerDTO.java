@@ -12,13 +12,18 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDTO {
+public class EmployerDTO {
+    private UUID employerId;
     private UUID userId;
     private String fullName;
     private String email;
+    private UUID companyId;
+    private String companyName;
+    private String positionTitle;
+    private String department;
+    private String workEmail;
     private String phone;
     private boolean isVerified;
-    private String role;
     private String status;
     private Timestamp createdAt;
 }

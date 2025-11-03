@@ -12,13 +12,14 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDTO {
+public class NotificationsDTO {
+    private UUID notificationId;
     private UUID userId;
     private String fullName;
-    private String email;
-    private String phone;
-    private boolean isVerified;
-    private String role;
-    private String status;
+    private String title;
+    private String message;
+    private String type;
+    private String linkUrl;
+    private Boolean isRead;
     private Timestamp createdAt;
 }

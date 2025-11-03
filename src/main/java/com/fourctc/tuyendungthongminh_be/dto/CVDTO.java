@@ -12,13 +12,14 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDTO {
-    private UUID userId;
-    private String fullName;
-    private String email;
-    private String phone;
-    private boolean isVerified;
-    private String role;
-    private String status;
+public class CVDTO {
+    private UUID cvId;
+    private UUID candidateId;
+    private String candidateName;
+    private String title;
+    private String fileUrl;
+    private boolean isDefault;
+    private String visibility;
     private Timestamp createdAt;
+    private Timestamp updatedAt;
 }

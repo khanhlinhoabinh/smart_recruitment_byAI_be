@@ -12,13 +12,10 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDTO {
-    private UUID userId;
-    private String fullName;
-    private String email;
-    private String phone;
-    private boolean isVerified;
-    private String role;
-    private String status;
+public class AiEmailTemplatesDTO {
+    private UUID templateId;
+    private String templateName;
+    private String subject;
+    private String body;
     private Timestamp createdAt;
 }
