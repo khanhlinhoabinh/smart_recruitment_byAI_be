@@ -16,4 +16,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     // Ví dụ: Tìm User theo status
     List<User> findByStatus(User.Status status);
+    User findByResetToken(String resetToken);
 }
