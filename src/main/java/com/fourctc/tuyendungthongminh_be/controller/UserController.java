@@ -1,11 +1,14 @@
 package com.fourctc.tuyendungthongminh_be.controller;
 
 import com.fourctc.tuyendungthongminh_be.dto.UserDTO;
+import com.fourctc.tuyendungthongminh_be.entity.User;
+import com.fourctc.tuyendungthongminh_be.repository.UserRepository;
 import com.fourctc.tuyendungthongminh_be.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Timestamp;
 import java.util.Map;
 import java.util.UUID;
 @CrossOrigin(origins = "http://localhost:5173")
@@ -15,6 +18,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserRepository userRepository;
+
 
     // API đăng ký người dùng mới
     @PostMapping("/register")
@@ -53,5 +59,14 @@ public class UserController {
         userService.resetPassword(token, newPassword);
         return ResponseEntity.ok("Đổi mật khẩu thành công");
     }
+    @GetMapping("/validate-reset-token")
+    public ResponseEntity<?> validateResetToken(@RequestParam String token) {
+        boolean isValid = userService.validateResetToken(token);
 
+        if (!isValid) {
+            return ResponseEntity.badRequest().body("Token không hợp lệ hoặc đã hết hạn");
+        }
+
+        return ResponseEntity.ok("Token hợp lệ");
+    }
 }

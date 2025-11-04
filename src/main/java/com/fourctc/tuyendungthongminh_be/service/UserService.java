@@ -77,4 +77,13 @@ public class UserService {
         user.setResetTokenExpiry(null);
         userRepository.save(user);
     }
+    public boolean validateResetToken(String token) {
+        User user = userRepository.findByResetToken(token);
+
+        if (user == null) return false;
+
+        Timestamp now = new Timestamp(System.currentTimeMillis()); // ✅ Không lỗi
+        return user.getResetTokenExpiry() != null
+                && user.getResetTokenExpiry().after(now);
+    }
 }
