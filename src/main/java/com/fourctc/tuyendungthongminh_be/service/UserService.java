@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -32,6 +33,9 @@ public class UserService {
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    /**
+     * Đăng ký người dùng mới
+     */
     public UserDTO registerUser(UserDTO userDTO) {
         if (userRepository.findByEmail(userDTO.getEmail()) != null) {
             throw new IllegalArgumentException("Email đã được sử dụng");
@@ -44,7 +48,15 @@ public class UserService {
         user.setVerified(false);
         user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
 
+        // Sinh token xác minh email và thời gian hết hạn (24h)
+        String verificationToken = UUID.randomUUID().toString();
+        user.setVerificationToken(verificationToken);
+
+        // Lưu vào DB
         User savedUser = userRepository.save(user);
+        // Gửi email xác minh
+        emailService.sendVerificationEmail(savedUser.getEmail(), verificationToken);
+
         return userMapper.userEntityToUserDTO(savedUser);
     }
 
@@ -96,5 +108,28 @@ public class UserService {
         Timestamp now = new Timestamp(System.currentTimeMillis()); // ✅ Không lỗi
         return user.getResetTokenExpiry() != null
                 && user.getResetTokenExpiry().after(now);
+    }
+
+    /**
+     * Xác minh email bằng token
+     */
+    public String verifyEmail(String token) {
+        Optional<User> optionalUser = userRepository.findAll().stream()
+                .filter(u -> token.equals(u.getVerificationToken()))
+                .findFirst();
+
+        if (optionalUser.isEmpty()) {
+            return "Token không hợp lệ hoặc đã được sử dụng";
+        }
+
+        User user = optionalUser.get();
+
+        // Cập nhật trạng thái xác minh
+        user.setVerified(true);
+        user.setVerificationToken(null);
+        userRepository.save(user);
+
+        return "Xác minh email thành công! Bạn có thể đăng nhập.";
+        
     }
 }

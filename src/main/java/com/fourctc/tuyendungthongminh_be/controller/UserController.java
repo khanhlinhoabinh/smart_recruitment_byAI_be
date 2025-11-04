@@ -11,7 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Timestamp;
+import java.sql.Timestamp;
+
 
 import java.util.Map;
 import java.util.UUID;
@@ -57,8 +58,7 @@ public class UserController {
             if (email == null || email.isEmpty()) {
                 return ResponseEntity.badRequest().body("Email không được để trống");
             }
-
-            userService.requestPasswordReset(email);
+          userService.requestPasswordReset(email);
             return ResponseEntity.ok("Đã gửi email reset mật khẩu");
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
@@ -66,6 +66,23 @@ public class UserController {
             return ResponseEntity.internalServerError().body("Lỗi máy chủ: " + ex.getMessage());
         }
     }
+
+    /**
+     * API xác minh email
+     * Endpoint: GET /users/verify?token=...
+     */
+    @GetMapping("/verify")
+    public ResponseEntity<String> verifyEmail(@RequestParam("token") String token) {
+        try {
+            String result = userService.verifyEmail(token);
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.internalServerError().body("Lỗi máy chủ: " + ex.getMessage());
+        }
+    }
+
 
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
