@@ -12,7 +12,7 @@ public class EmailService {
     private JavaMailSender mailSender;
 
     public void sendPasswordResetEmail(String toEmail, String token) {
-        String resetLink = "http://localhost:3306/reset-password-form?token=" + token;
+        String resetLink = "http://localhost:5173/reset-password?token=" + token;
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
         message.setSubject("Yêu cầu đặt lại mật khẩu");
