@@ -1,5 +1,6 @@
 package com.fourctc.tuyendungthongminh_be.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,4 +22,7 @@ public class UserDTO {
     private String role;
     private String status;
     private Timestamp createdAt;
+    // Mật khẩu người dùng nhập khi đăng ký — chỉ nhận từ client, không trả ra ngoài
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String password;
 }
