@@ -1,5 +1,8 @@
 package com.fourctc.tuyendungthongminh_be.controller;
 
+
+import com.fourctc.tuyendungthongminh_be.dto.LoginRequest;
+import com.fourctc.tuyendungthongminh_be.dto.LoginResponse;
 import com.fourctc.tuyendungthongminh_be.dto.UserDTO;
 import com.fourctc.tuyendungthongminh_be.entity.User;
 import com.fourctc.tuyendungthongminh_be.repository.UserRepository;
@@ -9,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Timestamp;
+
 import java.util.Map;
 import java.util.UUID;
 @CrossOrigin(origins = "http://localhost:5173")
@@ -28,6 +32,18 @@ public class UserController {
         try {
             UserDTO createdUser = userService.registerUser(userDTO);
             return ResponseEntity.ok(createdUser);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.internalServerError().body("Lỗi máy chủ: " + ex.getMessage());
+        }
+    }
+    // API đăng nhập trả về Access Token và Refresh Token
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        try {
+            LoginResponse response = userService.login(loginRequest);
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         } catch (Exception ex) {
