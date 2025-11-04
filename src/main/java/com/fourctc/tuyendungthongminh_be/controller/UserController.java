@@ -28,5 +28,19 @@ public class UserController {
         }
     }
 
+    /**
+     * API xác minh email
+     * Endpoint: GET /users/verify?token=...
+     */
+    @GetMapping("/verify")
+    public ResponseEntity<String> verifyEmail(@RequestParam("token") String token) {
+        try {
+            String result = userService.verifyEmail(token);
+            return ResponseEntity.ok(result);
+        } catch (Exception ex) {
+            return ResponseEntity.internalServerError().body("Lỗi máy chủ: " + ex.getMessage());
+        }
+    }
+
 
 }
