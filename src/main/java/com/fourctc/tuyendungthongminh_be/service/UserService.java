@@ -20,6 +20,9 @@ public class UserService {
     @Autowired
     private UserMapper userMapper;  // Tiêm vào UserMapper
 
+    @Autowired
+    private EmailService emailService;
+
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     // Hàm đăng ký người dùng
@@ -48,5 +51,30 @@ public class UserService {
         UserDTO response = userMapper.userEntityToUserDTO(savedUser);
 
         return response;
+    }
+    // Hàm Reset mật khẩu
+    public void requestPasswordReset(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) throw new IllegalArgumentException("Email không tồn tại");
+
+        String token = UUID.randomUUID().toString();
+        user.setResetToken(token);
+        user.setResetTokenExpiry(new Timestamp(System.currentTimeMillis() + 15 * 60 * 1000)); // 15 phút
+
+        userRepository.save(user);
+
+        // Gửi email (giả sử có EmailService)
+        emailService.sendPasswordResetEmail(user.getEmail(), token);
+    }
+
+    public void resetPassword(String token, String newPassword) {
+        User user = userRepository.findByResetToken(token);
+        if (user == null || user.getResetTokenExpiry().before(new Timestamp(System.currentTimeMillis()))) {
+            throw new IllegalArgumentException("Token không hợp lệ hoặc đã hết hạn");
+        }
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        user.setResetToken(null);
+        user.setResetTokenExpiry(null);
+        userRepository.save(user);
     }
 }
