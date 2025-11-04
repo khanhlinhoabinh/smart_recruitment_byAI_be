@@ -8,21 +8,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
 import java.sql.Timestamp;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService {
 
     @Autowired
-    private UserRepository userRepository;  // Giả sử bạn có UserRepository cho CRUD
+    private UserRepository userRepository;
 
     @Autowired
-    private UserMapper userMapper;  // Tiêm vào UserMapper
+    private UserMapper userMapper;
+
+    @Autowired
+    private EmailService emailService;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    // Hàm đăng ký người dùng
+    /**
+     * Đăng ký người dùng mới
+     */
     public UserDTO registerUser(UserDTO userDTO) {
         // Kiểm tra email trùng
         if (userRepository.findByEmail(userDTO.getEmail()) != null) {
@@ -41,12 +47,39 @@ public class UserService {
         user.setVerified(false);
         user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
 
+        // Sinh token xác minh email và thời gian hết hạn (24h)
+        String verificationToken = UUID.randomUUID().toString();
+        user.setVerificationToken(verificationToken);
+
         // Lưu vào DB
         User savedUser = userRepository.save(user);
 
-        // Trả về DTO (ẩn mật khẩu)
-        UserDTO response = userMapper.userEntityToUserDTO(savedUser);
+        // Gửi email xác minh
+        emailService.sendVerificationEmail(savedUser.getEmail(), verificationToken);
 
-        return response;
+        // Trả về DTO (ẩn mật khẩu)
+        return userMapper.userEntityToUserDTO(savedUser);
+    }
+
+    /**
+     * Xác minh email bằng token
+     */
+    public String verifyEmail(String token) {
+        Optional<User> optionalUser = userRepository.findAll().stream()
+                .filter(u -> token.equals(u.getVerificationToken()))
+                .findFirst();
+
+        if (optionalUser.isEmpty()) {
+            return "Token không hợp lệ hoặc đã được sử dụng";
+        }
+
+        User user = optionalUser.get();
+
+        // Cập nhật trạng thái xác minh
+        user.setVerified(true);
+        user.setVerificationToken(null);
+        userRepository.save(user);
+
+        return "Xác minh email thành công! Bạn có thể đăng nhập.";
     }
 }
