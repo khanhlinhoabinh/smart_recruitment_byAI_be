@@ -24,4 +24,12 @@ public class EmailService {
 
         mailSender.send(mailMessage);
     }
+    public void sendPasswordResetEmail(String toEmail, String token) {
+        String resetLink = "http://localhost:5173/reset-password?token=" + token;
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject("Yêu cầu đặt lại mật khẩu");
+        message.setText("Click vào link sau để đặt lại mật khẩu: " + resetLink);
+        mailSender.send(message);
+    }
 }

@@ -1,6 +1,7 @@
 package com.fourctc.tuyendungthongminh_be.repository;
 
 import com.fourctc.tuyendungthongminh_be.entity.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,4 +17,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     // Ví dụ: Tìm User theo status
     List<User> findByStatus(User.Status status);
+    User findByResetToken(String resetToken);
 }
