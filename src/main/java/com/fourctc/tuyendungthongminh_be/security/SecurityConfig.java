@@ -33,7 +33,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/users/register", "/users/login", "/users/verify", "/users/request-reset", "/users/reset-password").permitAll() // ✅ Cho phép các API public
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/hr/**").hasAnyRole("HR", "ADMIN")
+                        .requestMatchers("/hr/**").hasRole("HR")
+                        .requestMatchers("/candidate/**").hasRole("CANDIDATE")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
