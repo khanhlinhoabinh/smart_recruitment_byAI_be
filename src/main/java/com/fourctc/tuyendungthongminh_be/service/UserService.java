@@ -42,6 +42,9 @@ public class UserService {
         }
 
         User user = userMapper.userDTOToUserEntity(userDTO);
+        if (userDTO.getPassword() == null || userDTO.getPassword().isBlank()) {
+            throw new IllegalArgumentException("Mật khẩu không được để trống");
+        }
         user.setPasswordHash(passwordEncoder.encode(userDTO.getPassword()));
         user.setRole(User.Role.CANDIDATE);
         user.setStatus(User.Status.ACTIVE);

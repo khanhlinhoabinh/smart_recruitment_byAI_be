@@ -11,17 +11,21 @@ import org.mapstruct.factory.Mappers;
 @Mapper(componentModel = "spring")  // Để Spring tự động inject Mapper
 public interface UserMapper {
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
+    // Entity -> DTO
     @Mappings({
             @Mapping(source = "role", target = "role", qualifiedByName = "roleToString"),
-            @Mapping(source = "status", target = "status", qualifiedByName = "statusToString")
+            @Mapping(source = "status", target = "status", qualifiedByName = "statusToString"),
+            @Mapping(target = "password", ignore = true) // không trả password ra FE
+
     })
 
     // Ánh xạ từ UserEntity sang UserDTO
     UserDTO userEntityToUserDTO(User user);
+    // DTO -> Entity
     @Mappings({
             @Mapping(target = "role", expression = "java(User.Role.valueOf(userDTO.getRole() != null ? userDTO.getRole() : \"CANDIDATE\"))"),
             @Mapping(target = "status", expression = "java(User.Status.valueOf(userDTO.getStatus() != null ? userDTO.getStatus() : \"ACTIVE\"))"),
-            @Mapping(target = "passwordHash", ignore = true), // password xử lý riêng trong service
+            @Mapping(target = "passwordHash", ignore = true),
             @Mapping(target = "verificationToken", ignore = true),
             @Mapping(target = "resetToken", ignore = true),
             @Mapping(target = "resetTokenExpiry", ignore = true)
