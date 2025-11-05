@@ -72,8 +72,8 @@ public class UserService {
         long accessTokenExpiry = 15 * 60 * 1000; // 15 phút
         long refreshTokenExpiry = request.isRememberMe() ? 30L * 24 * 60 * 60 * 1000 : 7L * 24 * 60 * 60 * 1000;
 
-        String accessToken = jwtUtil.generateToken(user.getEmail(), accessTokenExpiry);
-        String refreshToken = jwtUtil.generateToken(user.getEmail(), refreshTokenExpiry);
+        String accessToken = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), accessTokenExpiry);
+        String refreshToken = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), refreshTokenExpiry);
 
         UserDTO userDTO = userMapper.userEntityToUserDTO(user);
         return new LoginResponse(accessToken, refreshToken, userDTO);
@@ -133,6 +133,5 @@ public class UserService {
         userRepository.save(user);
 
         return "Xác minh email thành công! Bạn có thể đăng nhập.";
-        
     }
 }
