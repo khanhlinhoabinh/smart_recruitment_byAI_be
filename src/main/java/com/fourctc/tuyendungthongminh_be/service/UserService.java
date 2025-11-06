@@ -149,7 +149,7 @@ public class UserService {
             return "Token không hợp lệ hoặc đã được sử dụng";
         }
 
-        User user = optionalUser.get();git add
+        User user = optionalUser.get();
         user.setVerified(true);
         user.setVerificationToken(null);
         userRepository.save(user);
