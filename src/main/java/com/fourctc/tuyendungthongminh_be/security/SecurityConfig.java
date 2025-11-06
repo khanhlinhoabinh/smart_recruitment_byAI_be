@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> {}) // ✅ Bật CORS
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/users/register", "/users/login", "/users/verify", "/users/request-reset", "/users/reset-password", "/users/validate-reset-token").permitAll() // ✅ Cho phép các API public
+                        .requestMatchers("/users/register", "/users/login", "/users/verify", "/users/request-reset", "/users/reset-password", "/users/validate-reset-token","/users/logout").permitAll() // ✅ Cho phép các API public
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/hr/**").hasRole("HR")
                         .requestMatchers("/candidate/**").hasRole("CANDIDATE")
@@ -42,7 +42,6 @@ public class SecurityConfig {
                 .httpBasic(basic -> basic.disable());
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 
