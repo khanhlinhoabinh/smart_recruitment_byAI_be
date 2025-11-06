@@ -46,12 +46,29 @@ public class UserService {
             throw new IllegalArgumentException("Mật khẩu không được để trống");
         }
 
+        // Xử lý role
+        String roleStr = userDTO.getRole();
+        if (roleStr == null || roleStr.isBlank()) {
+            throw new IllegalArgumentException("Vui lòng chọn vai trò (HR hoặc CANDIDATE)");
+        }
+        roleStr = roleStr.toUpperCase();
+        if (roleStr.equals("ADMIN")) {
+            throw new IllegalArgumentException("Không thể đăng ký tài khoản ADMIN");
+        }
+        try {
+            user.setRole(User.Role.valueOf(roleStr));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Role không hợp lệ. Chỉ chấp nhận HR hoặc CANDIDATE");
+        }
+
+        if (userDTO.getPassword() == null || userDTO.getPassword().isBlank()) {
+            throw new IllegalArgumentException("Mật khẩu không được để trống");
+        }
+
         user.setPasswordHash(passwordEncoder.encode(userDTO.getPassword()));
-        user.setRole(User.Role.CANDIDATE);
         user.setStatus(User.Status.ACTIVE);
         user.setVerified(false);
         user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-
         // Sinh token xác minh email (UUID) – hết hạn 24h
         String verificationToken = UUID.randomUUID().toString();
         user.setVerificationToken(verificationToken);
