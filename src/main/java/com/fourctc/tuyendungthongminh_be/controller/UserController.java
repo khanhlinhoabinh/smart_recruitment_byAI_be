@@ -102,4 +102,9 @@ public class UserController {
 
         return ResponseEntity.ok("Token hợp lệ");
     }
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout() {
+        // Không cần xử lý gì ở server nếu không lưu token
+        return ResponseEntity.ok("Đăng xuất thành công");
+    }
 }
