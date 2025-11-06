@@ -13,7 +13,7 @@ public class EmailService {
 
     public void sendVerificationEmail(String toEmail, String token) {
         String subject = "Xác minh tài khoản của bạn";
-        String verificationLink = "http://localhost:5173/users/verify?token=" + token;
+        String verificationLink = "http://localhost:5173/verify?token=" + token;
         String message = "Chào bạn,\n\nVui lòng nhấn vào link sau để xác minh tài khoản:\n"
                 + verificationLink + "\n\nLink này sẽ hết hạn sau 24 giờ.";
 
