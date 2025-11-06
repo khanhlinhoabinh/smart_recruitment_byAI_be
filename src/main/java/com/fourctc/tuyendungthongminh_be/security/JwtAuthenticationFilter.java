@@ -47,4 +47,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getServletPath();
+        // ✅ Bỏ qua các endpoint public không cần JWT
+        return path.startsWith("/users/login")
+                || path.startsWith("/users/register")
+                || path.startsWith("/users/request-reset")
+                || path.startsWith("/users/reset-password")
+                || path.startsWith("/users/verify")
+                || path.startsWith("/users/validate-reset-token");
+    }
+
 }

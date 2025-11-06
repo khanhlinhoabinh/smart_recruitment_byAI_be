@@ -45,24 +45,29 @@ public class UserService {
         if (userDTO.getPassword() == null || userDTO.getPassword().isBlank()) {
             throw new IllegalArgumentException("Mật khẩu không được để trống");
         }
+
         user.setPasswordHash(passwordEncoder.encode(userDTO.getPassword()));
         user.setRole(User.Role.CANDIDATE);
         user.setStatus(User.Status.ACTIVE);
         user.setVerified(false);
         user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
 
-        // Sinh token xác minh email và thời gian hết hạn (24h)
+        // Sinh token xác minh email (UUID) – hết hạn 24h
         String verificationToken = UUID.randomUUID().toString();
         user.setVerificationToken(verificationToken);
 
         // Lưu vào DB
         User savedUser = userRepository.save(user);
+
         // Gửi email xác minh
         emailService.sendVerificationEmail(savedUser.getEmail(), verificationToken);
 
         return userMapper.userEntityToUserDTO(savedUser);
     }
 
+    /**
+     * Đăng nhập người dùng
+     */
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail());
         if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
@@ -78,39 +83,58 @@ public class UserService {
         UserDTO userDTO = userMapper.userEntityToUserDTO(user);
         return new LoginResponse(accessToken, refreshToken, userDTO);
     }
-    // Hàm Reset mật khẩu
+
+    /**
+     * Yêu cầu đặt lại mật khẩu (Reset Password)
+     */
     public void requestPasswordReset(String email) {
         User user = userRepository.findByEmail(email);
         if (user == null) throw new IllegalArgumentException("Email không tồn tại");
 
+        // Tạo token UUID ngẫu nhiên
         String token = UUID.randomUUID().toString();
         user.setResetToken(token);
         user.setResetTokenExpiry(new Timestamp(System.currentTimeMillis() + 15 * 60 * 1000)); // 15 phút
 
         userRepository.save(user);
 
-        // Gửi email (giả sử có EmailService)
+        // Log ra token để dễ debug (xem đúng link chưa)
+        System.out.println("📧 Reset token for " + email + ": " + token);
+
+        // Gửi email đặt lại mật khẩu
         emailService.sendPasswordResetEmail(user.getEmail(), token);
     }
 
+    /**
+     * Đặt lại mật khẩu bằng token
+     */
     public void resetPassword(String token, String newPassword) {
         User user = userRepository.findByResetToken(token);
-        if (user == null || user.getResetTokenExpiry().before(new Timestamp(System.currentTimeMillis()))) {
-            throw new IllegalArgumentException("Token không hợp lệ hoặc đã hết hạn");
+
+        if (user == null) {
+            throw new IllegalArgumentException("Token không hợp lệ");
         }
+
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        if (user.getResetTokenExpiry() == null || user.getResetTokenExpiry().before(now)) {
+            throw new IllegalArgumentException("Token đã hết hạn");
+        }
+
         user.setPasswordHash(passwordEncoder.encode(newPassword));
         user.setResetToken(null);
         user.setResetTokenExpiry(null);
         userRepository.save(user);
     }
+
+    /**
+     * Kiểm tra tính hợp lệ của token reset mật khẩu
+     */
     public boolean validateResetToken(String token) {
         User user = userRepository.findByResetToken(token);
-
         if (user == null) return false;
 
-        Timestamp now = new Timestamp(System.currentTimeMillis()); // ✅ Không lỗi
-        return user.getResetTokenExpiry() != null
-                && user.getResetTokenExpiry().after(now);
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        return user.getResetTokenExpiry() != null && user.getResetTokenExpiry().after(now);
     }
 
     /**
@@ -126,8 +150,6 @@ public class UserService {
         }
 
         User user = optionalUser.get();
-
-        // Cập nhật trạng thái xác minh
         user.setVerified(true);
         user.setVerificationToken(null);
         userRepository.save(user);
