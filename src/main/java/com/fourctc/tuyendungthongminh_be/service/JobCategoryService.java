@@ -7,7 +7,9 @@ import com.fourctc.tuyendungthongminh_be.repository.JobCategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class JobCategoryService {
@@ -18,5 +20,38 @@ public class JobCategoryService {
     @Autowired
     private JobCategoryMapper jobCategoryMapper;
 
+    public List<JobCategoryDTO> getPopularCategories() {
+        return jobCategoryRepository.findAll().stream()
+                .filter(JobCategory::isPopular)
+                .map(jobCategoryMapper::toDTO)
+                .collect(Collectors.toList());
+    }
 
+    public List<JobCategoryDTO> getAllCategories() {
+        return jobCategoryRepository.findAll().stream()
+                .map(jobCategoryMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public JobCategoryDTO createCategory(JobCategoryDTO dto, String createdBy) {
+        JobCategory entity = jobCategoryMapper.toEntity(dto);
+        entity.setCreatedBy(createdBy);
+        entity.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+        JobCategory saved = jobCategoryRepository.save(entity);
+        return jobCategoryMapper.toDTO(saved);
+    }
+
+    public JobCategoryDTO updateCategory(UUID id, JobCategoryDTO dto) {
+        JobCategory existing = jobCategoryRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+        existing.setName(dto.getName());
+        existing.setDescription(dto.getDescription());
+        existing.setPopular(dto.isPopular());
+        JobCategory updated = jobCategoryRepository.save(existing);
+        return jobCategoryMapper.toDTO(updated);
+    }
+
+    public void deleteCategory(UUID id) {
+        jobCategoryRepository.deleteById(id);
+    }
 }
