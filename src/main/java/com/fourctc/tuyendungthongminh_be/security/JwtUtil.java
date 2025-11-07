@@ -3,9 +3,12 @@ package com.fourctc.tuyendungthongminh_be.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtUtil {
@@ -35,10 +38,20 @@ public class JwtUtil {
 
     public boolean validateToken(String token) {
         try {
-            extractClaims(token);
-            return true;
+            return !isTokenExpired(token);
         } catch (Exception e) {
             return false;
         }
+    }
+
+    // ✅ Kiểm tra token hết hạn
+    public boolean isTokenExpired(String token) {
+        Date expiration = extractClaims(token).getExpiration();
+        return expiration.before(new Date());
+    }
+
+    // ✅ Trả về quyền cho Spring Security
+    public List<SimpleGrantedAuthority> getAuthorities(String role) {
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role));
     }
 }

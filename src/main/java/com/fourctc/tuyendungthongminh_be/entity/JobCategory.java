@@ -30,5 +30,11 @@ public class JobCategory {
     private JobCategory parentCategory;
 
     @Column(name = "created_at", nullable = false)
-    private Timestamp createdAt;
+    private Timestamp createdAt = new Timestamp(System.currentTimeMillis());
+
+    @Column(name = "is_popular", nullable = false)
+    private boolean isPopular = false;
+
+    @Column(name = "created_by", length = 100)
+    private String createdBy;
 }
