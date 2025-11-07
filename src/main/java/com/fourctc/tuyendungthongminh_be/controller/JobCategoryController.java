@@ -41,5 +41,11 @@ public class JobCategoryController {
     public ResponseEntity<JobCategoryDTO> updateCategory(@PathVariable UUID id, @RequestBody JobCategoryDTO dto) {
         return ResponseEntity.ok(jobCategoryService.updateCategory(id, dto));
     }
-
+    // Admin xóa ngành nghề
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteCategory(@PathVariable UUID id) {
+        jobCategoryService.deleteCategory(id);
+        return ResponseEntity.ok("Category deleted successfully");
+    }
 }
