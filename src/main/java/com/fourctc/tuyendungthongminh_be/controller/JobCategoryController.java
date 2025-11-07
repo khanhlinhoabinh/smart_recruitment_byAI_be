@@ -35,6 +35,11 @@ public class JobCategoryController {
     public ResponseEntity<JobCategoryDTO> createCategory(@RequestBody JobCategoryDTO dto, Principal principal) {
         return ResponseEntity.ok(jobCategoryService.createCategory(dto, principal.getName()));
     }
-
+    // HR/Admin sửa ngành nghề
+    @PreAuthorize("hasAnyRole('HR','ADMIN')")
+    @PutMapping("/{id}")
+    public ResponseEntity<JobCategoryDTO> updateCategory(@PathVariable UUID id, @RequestBody JobCategoryDTO dto) {
+        return ResponseEntity.ok(jobCategoryService.updateCategory(id, dto));
+    }
 
 }
