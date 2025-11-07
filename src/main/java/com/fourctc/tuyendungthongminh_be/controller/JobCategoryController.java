@@ -29,6 +29,12 @@ public class JobCategoryController {
     public ResponseEntity<List<JobCategoryDTO>> getAllCategories() {
         return ResponseEntity.ok(jobCategoryService.getAllCategories());
     }
+    // HR/Admin thêm ngành nghề
+    @PreAuthorize("hasAnyRole('HR','ADMIN')")
+    @PostMapping
+    public ResponseEntity<JobCategoryDTO> createCategory(@RequestBody JobCategoryDTO dto, Principal principal) {
+        return ResponseEntity.ok(jobCategoryService.createCategory(dto, principal.getName()));
+    }
 
 
 }
