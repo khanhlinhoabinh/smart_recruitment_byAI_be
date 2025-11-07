@@ -23,6 +23,12 @@ public class JobCategoryController {
     public ResponseEntity<List<JobCategoryDTO>> getPopularCategories() {
         return ResponseEntity.ok(jobCategoryService.getPopularCategories());
     }
+    // HR/Admin xem tất cả ngành nghề
+    @PreAuthorize("hasAnyRole('HR','ADMIN')")
+    @GetMapping
+    public ResponseEntity<List<JobCategoryDTO>> getAllCategories() {
+        return ResponseEntity.ok(jobCategoryService.getAllCategories());
+    }
 
 
 }
