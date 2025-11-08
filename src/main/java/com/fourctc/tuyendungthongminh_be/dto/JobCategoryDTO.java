@@ -12,6 +12,6 @@ public class JobCategoryDTO {
     private UUID categoryId;
     private String name;
     private String description;
-    private boolean isPopular;
+    private boolean popular;
     private String createdBy;
 }

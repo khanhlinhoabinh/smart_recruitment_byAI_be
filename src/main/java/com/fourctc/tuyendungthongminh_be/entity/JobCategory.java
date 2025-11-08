@@ -33,7 +33,7 @@ public class JobCategory {
     private Timestamp createdAt = new Timestamp(System.currentTimeMillis());
 
     @Column(name = "is_popular", nullable = false)
-    private boolean isPopular = false;
+    private boolean popular = false;
 
     @Column(name = "created_by", length = 100)
     private String createdBy;
