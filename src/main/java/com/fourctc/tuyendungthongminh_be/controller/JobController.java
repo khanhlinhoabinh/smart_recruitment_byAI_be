@@ -23,6 +23,13 @@ public class JobController {
     public ResponseEntity<List<JobDTO>> getApprovedJobs() {
         return ResponseEntity.ok(jobService.getApprovedJobs());
     }
+    // ✅ HR, Admin xem tất cả job
+    @PreAuthorize("hasAnyRole('HR','ADMIN')")
+    @GetMapping
+    public ResponseEntity<List<JobDTO>> getAllJobs() {
+        return ResponseEntity.ok(jobService.getAllJobs());
+    }
+
     // ✅ HR thêm job (chờ duyệt)
     @PreAuthorize("hasRole('HR')")
     @PostMapping
