@@ -2,6 +2,7 @@ package com.fourctc.tuyendungthongminh_be.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -41,7 +42,9 @@ public class SecurityConfig {
                                 "/users/reset-password",
                                 "/users/validate-reset-token",
                                 "/users/logout",
-                                "/job-categories/popular" // ✅ Cho phép Candidate xem ngành nghề phổ biến
+                                "/job-categories/popular",
+                                "/companies/public",
+                                "/companies/featured"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/hr/**").hasRole("HR")
