@@ -47,4 +47,12 @@ public class JobController {
         return ResponseEntity.ok("Đã xóa vị trí công việc thành công.");
     }
 
+    // ✅ Admin duyệt job
+    @PutMapping("/{id}/approve")
+    public ResponseEntity<JobDTO> approveJob(@PathVariable UUID id, Principal principal) {
+        JobDTO approvedJob = jobService.approveJob(id, principal);
+        return ResponseEntity.ok(approvedJob);
+    }
+
+
 }
