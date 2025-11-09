@@ -39,9 +39,12 @@ public class JobController {
         return ResponseEntity.ok("Yêu cầu cập nhật vị trí công việc đã được gửi đến Admin duyệt.");
     }
 
-
-
-
-
+    // ✅ HR xóa job (xóa trực tiếp, không cần duyệt)
+    @PreAuthorize("hasRole('HR')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteJob(@PathVariable UUID id) {
+        jobService.deleteJob(id);
+        return ResponseEntity.ok("Đã xóa vị trí công việc thành công.");
+    }
 
 }
