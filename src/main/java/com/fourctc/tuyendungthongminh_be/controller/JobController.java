@@ -31,6 +31,15 @@ public class JobController {
         return ResponseEntity.ok("Yêu cầu thêm vị trí công việc đã được gửi đến Admin duyệt.");
     }
 
+    // ✅ HR sửa job (chờ duyệt lại)
+    @PreAuthorize("hasRole('HR')")
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateJob(@PathVariable UUID id, @RequestBody JobDTO dto) {
+        jobService.updateJob(id, dto);
+        return ResponseEntity.ok("Yêu cầu cập nhật vị trí công việc đã được gửi đến Admin duyệt.");
+    }
+
+
 
 
 
