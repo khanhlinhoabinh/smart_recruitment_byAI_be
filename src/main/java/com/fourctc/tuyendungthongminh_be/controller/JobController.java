@@ -23,6 +23,14 @@ public class JobController {
     public ResponseEntity<List<JobDTO>> getApprovedJobs() {
         return ResponseEntity.ok(jobService.getApprovedJobs());
     }
+    // ✅ HR thêm job (chờ duyệt)
+    @PreAuthorize("hasRole('HR')")
+    @PostMapping
+    public ResponseEntity<String> createJob(@RequestBody JobDTO dto, Principal principal) {
+        jobService.createJob(dto, principal); // gọi service với principal
+        return ResponseEntity.ok("Yêu cầu thêm vị trí công việc đã được gửi đến Admin duyệt.");
+    }
+
 
 
 
