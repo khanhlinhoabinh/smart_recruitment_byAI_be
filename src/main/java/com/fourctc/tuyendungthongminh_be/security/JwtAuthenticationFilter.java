@@ -43,9 +43,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String role = jwtUtil.extractRole(token);
                 List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
+                // Debug log (có thể xóa sau khi ổn định)
+                System.out.println("[JWT Filter] User: " + email + " | Role: " + role + " | Authority: ROLE_" + role);
+
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(email, null, authorities);
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request)); // ✅ Thêm chi tiết
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
@@ -53,16 +56,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    /**
+     * BỎ QUA JWT FILTER CHO CÁC ENDPOINT PUBLIC
+     * Chỉ áp dụng cho các endpoint cần xác thực
+     */
     @Override
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) throws ServletException {
         String path = request.getServletPath();
-        // ✅ Bỏ qua các endpoint public không cần JWT
-        return path.startsWith("/users/login")
-                || path.startsWith("/users/register")
-                || path.startsWith("/users/request-reset")
-                || path.startsWith("/users/reset-password")
-                || path.startsWith("/users/verify")
-                || path.startsWith("/users/validate-reset-token")
-                || path.startsWith("/job-categories/popular"); // ✅ Cho phép Candidate xem ngành nghề phổ biến
+
+        return path.equals("/users/login") ||
+                path.equals("/users/register") ||
+                path.equals("/users/verify") ||
+                path.equals("/users/request-reset") ||
+                path.equals("/users/reset-password") ||
+                path.equals("/users/validate-reset-token") ||
+                path.equals("/job-categories/popular") ||
+                path.equals("/companies/public") ||           // THÊM: Public list
+                path.equals("/companies/featured");           // THÊM: Featured list
     }
 }

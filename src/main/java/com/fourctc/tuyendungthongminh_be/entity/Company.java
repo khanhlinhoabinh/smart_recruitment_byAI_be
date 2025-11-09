@@ -5,11 +5,9 @@ import lombok.*;
 import java.sql.Timestamp;
 import java.util.UUID;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+// package com.fourctc.tuyendungthongminh_be.entity.Company
+
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 @Entity
 @Table(name = "companies")
 public class Company {
@@ -52,13 +50,19 @@ public class Company {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private Status status = Status.ACTIVE;
+    private Status status = Status.PENDING; // Mới: chờ duyệt
+
+    @Column(name = "featured", nullable = false)
+    private boolean featured = false;
 
     @Column(name = "created_at", nullable = false)
-    private Timestamp createdAt;
+    private Timestamp createdAt = new Timestamp(System.currentTimeMillis());
+
+    @Column(name = "created_by", length = 100)
+    private String createdBy; // Người tạo (HR)
 
     public enum Status {
-        ACTIVE, INACTIVE, BANNED
+        PENDING, ACTIVE, INACTIVE, BANNED
     }
 
     public enum CompanySize {
