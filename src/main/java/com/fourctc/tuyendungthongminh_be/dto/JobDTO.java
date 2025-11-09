@@ -28,8 +28,7 @@ public class JobDTO {
     private Timestamp updatedAt;
     private Timestamp expiredAt;
 
-    private UUID employerId;
-    private String employerName;
+    private String createdBy;
 
     private UUID companyId;
     private String companyName;
