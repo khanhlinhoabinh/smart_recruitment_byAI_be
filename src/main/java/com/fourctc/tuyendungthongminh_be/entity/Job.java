@@ -20,10 +20,6 @@ public class Job {
     private UUID jobId;
 
     @ManyToOne
-    @JoinColumn(name = "employer_id", referencedColumnName = "employer_id")
-    private Employer employer;
-
-    @ManyToOne
     @JoinColumn(name = "company_id", referencedColumnName = "company_id")
     private Company company;
 
@@ -58,8 +54,9 @@ public class Job {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private JobStatus status;
+    private JobStatus status = JobStatus.PENDING;
 
+    @Builder.Default
     @Column(name = "views_count", nullable = false)
     private Integer viewsCount = 0;
 
@@ -71,6 +68,9 @@ public class Job {
 
     @Column(name = "expired_at")
     private Timestamp expiredAt;
+
+    @Column(name = "created_by", length = 100)
+    private String createdBy; // email người tạo (HR)
 
     @ManyToOne
     @JoinColumn(name = "approved_by", referencedColumnName = "user_id")
