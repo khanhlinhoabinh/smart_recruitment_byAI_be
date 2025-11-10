@@ -44,7 +44,9 @@ public class SecurityConfig {
                                 "/users/logout",
                                 "/job-categories/popular",
                                 "/companies/public",
-                                "/companies/featured"
+                                "/companies/featured",
+                                "/jobs/search",
+                                "jobs/latest"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/hr/**").hasRole("HR")
