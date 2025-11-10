@@ -12,7 +12,8 @@ import com.fourctc.tuyendungthongminh_be.repository.UserRepository;
 import com.fourctc.tuyendungthongminh_be.repository.JobCategoryRepository;
 import com.fourctc.tuyendungthongminh_be.repository.EmployerRepository;
 import com.fourctc.tuyendungthongminh_be.entity.User;
-
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.UUID;
 import java.sql.Timestamp;
@@ -137,6 +138,13 @@ public class JobService {
 
         Job saved = jobRepository.save(job);
         return jobMapper.toDTO(saved);
+    }
+
+    // Lấy danh sách 10 job mới nhất theo ngày đăng (createdAt)
+    public List<JobDTO> getLatestJobs() {
+        Pageable pageable = PageRequest.of(0, 10); // Lấy 10 job đầu tiên
+        List<Job> jobs = jobRepository.findLatestJobs(Job.JobStatus.APPROVED, pageable);
+        return jobs.stream().map(jobMapper::toDTO).collect(Collectors.toList());
     }
 
 

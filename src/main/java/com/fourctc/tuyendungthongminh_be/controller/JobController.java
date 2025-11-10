@@ -61,5 +61,9 @@ public class JobController {
         return ResponseEntity.ok(approvedJob);
     }
 
-
+    // Lấy danh sách 10 job mới nhất theo ngày đăng (createdAt)
+    @GetMapping("/latest")
+    public ResponseEntity<List<JobDTO>> getLatestJobs() {
+        return ResponseEntity.ok(jobService.getLatestJobs());
+    }
 }
