@@ -147,5 +147,10 @@ public class JobService {
         return jobs.stream().map(jobMapper::toDTO).collect(Collectors.toList());
     }
 
-
+    // Tìm việc theo từ khóa, vị trí, ngành nghề
+    public List<JobDTO> searchJobs(String keyword, String location, UUID categoryId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        List<Job> jobs = jobRepository.searchJobs(Job.JobStatus.APPROVED, keyword, location, categoryId, pageable);
+        return jobs.stream().map(jobMapper::toDTO).collect(Collectors.toList());
+    }
 }
