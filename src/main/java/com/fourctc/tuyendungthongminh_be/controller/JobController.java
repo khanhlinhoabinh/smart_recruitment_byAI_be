@@ -66,4 +66,16 @@ public class JobController {
     public ResponseEntity<List<JobDTO>> getLatestJobs() {
         return ResponseEntity.ok(jobService.getLatestJobs());
     }
+
+    // Tìm việc theo từ khóa, vị trí, ngành nghề
+    @GetMapping("/search")
+    public ResponseEntity<List<JobDTO>> searchJobs(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) UUID category,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(jobService.searchJobs(keyword, location, category, page, size));
+    }
+
 }

@@ -142,10 +142,15 @@ public class JobService {
 
     // Lấy danh sách 10 job mới nhất theo ngày đăng (createdAt)
     public List<JobDTO> getLatestJobs() {
-        Pageable pageable = PageRequest.of(0, 10); // Lấy 10 job đầu tiên
+        Pageable pageable = PageRequest.of(0, 9); // Lấy 10 job đầu tiên
         List<Job> jobs = jobRepository.findLatestJobs(Job.JobStatus.APPROVED, pageable);
         return jobs.stream().map(jobMapper::toDTO).collect(Collectors.toList());
     }
 
-
+    // Tìm việc theo từ khóa, vị trí, ngành nghề
+    public List<JobDTO> searchJobs(String keyword, String location, UUID categoryId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        List<Job> jobs = jobRepository.searchJobs(Job.JobStatus.APPROVED, keyword, location, categoryId, pageable);
+        return jobs.stream().map(jobMapper::toDTO).collect(Collectors.toList());
+    }
 }

@@ -16,4 +16,14 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
     @Query("SELECT j FROM Job j WHERE j.status = :status ORDER BY j.createdAt DESC")
     List<Job> findLatestJobs(@Param("status") Job.JobStatus status, Pageable pageable);
 
+    @Query("SELECT j FROM Job j WHERE j.status = :status " +
+            "AND (:keyword IS NULL OR LOWER(j.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(j.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "AND (:location IS NULL OR LOWER(j.location) LIKE LOWER(CONCAT('%', :location, '%'))) " +
+            "AND (:categoryId IS NULL OR j.category.categoryId = :categoryId) " +
+            "ORDER BY j.createdAt DESC")
+    List<Job> searchJobs(@Param("status") Job.JobStatus status,
+                         @Param("keyword") String keyword,
+                         @Param("location") String location,
+                         @Param("categoryId") UUID categoryId,
+                         Pageable pageable);
 }
