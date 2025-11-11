@@ -44,6 +44,7 @@ public class SecurityConfig {
                                 "/users/logout",
                                 "/job-categories/popular",
                                 "/companies/public",
+                                "/companies/public/**",
                                 "/companies/featured",
                                 "/jobs/search",
                                 "/jobs/latest"
