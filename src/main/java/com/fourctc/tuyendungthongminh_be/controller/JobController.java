@@ -78,4 +78,11 @@ public class JobController {
         return ResponseEntity.ok(jobService.searchJobs(keyword, location, category, page, size));
     }
 
+    // ✅ Lấy chi tiết job theo ID
+    @GetMapping("/{id}")
+    public ResponseEntity<JobDTO> getJobById(@PathVariable UUID id) {
+        JobDTO job = jobService.getJobById(id);
+        return ResponseEntity.ok(job);
+    }
+
 }

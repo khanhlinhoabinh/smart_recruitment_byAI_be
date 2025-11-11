@@ -153,4 +153,12 @@ public class JobService {
         List<Job> jobs = jobRepository.searchJobs(Job.JobStatus.APPROVED, keyword, location, categoryId, pageable);
         return jobs.stream().map(jobMapper::toDTO).collect(Collectors.toList());
     }
+
+    // ✅ Lấy chi tiết job theo ID
+    public JobDTO getJobById(UUID id) {
+        return jobRepository.findById(id)
+                .map(jobMapper::toDTO)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy công việc"));
+    }
+
 }

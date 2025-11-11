@@ -46,7 +46,8 @@ public class SecurityConfig {
                                 "/companies/public",
                                 "/companies/featured",
                                 "/jobs/search",
-                                "/jobs/latest"
+                                "/jobs/latest",
+                                "/job/{id}"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/hr/**").hasRole("HR")
