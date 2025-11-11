@@ -72,6 +72,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 path.equals("/users/validate-reset-token") ||
                 path.equals("/job-categories/popular") ||
                 path.equals("/companies/public") ||           // THÊM: Public list
-                path.equals("/companies/featured");           // THÊM: Featured list
+                path.equals("/companies/featured")||           // THÊM: Featured list
+                path.equals("/jobs/**");
     }
 }
