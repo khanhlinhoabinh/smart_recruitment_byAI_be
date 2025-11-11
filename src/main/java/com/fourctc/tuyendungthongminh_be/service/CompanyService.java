@@ -123,4 +123,11 @@ public class CompanyService {
         return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_" + role));
     }
+    public CompanyDTO getCompanyById(UUID id) {
+        Company company = getCompanyOrThrow(id);
+        if (company.getStatus() != Company.Status.ACTIVE) {
+            throw new IllegalStateException("Công ty chưa được kích hoạt");
+        }
+        return companyMapper.companyEntityToCompanyDTO(company);
+    }
 }
