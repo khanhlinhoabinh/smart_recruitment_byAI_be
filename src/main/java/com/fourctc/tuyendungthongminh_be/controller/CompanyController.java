@@ -79,4 +79,9 @@ public class CompanyController {
                 .filter(CompanyDTO::getFeatured)
                 .collect(Collectors.toList()));
     }
+    // CANDIDATE: Xem chi tiết công ty
+    @GetMapping("/public/{id}")
+    public ResponseEntity<CompanyDTO> getCompanyById(@PathVariable UUID id) {
+        return ResponseEntity.ok(companyService.getCompanyById(id));
+    }
 }
