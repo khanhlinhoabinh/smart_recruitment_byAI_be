@@ -142,7 +142,7 @@ public class JobService {
 
     // Lấy danh sách 10 job mới nhất theo ngày đăng (createdAt)
     public List<JobDTO> getLatestJobs() {
-        Pageable pageable = PageRequest.of(0, 10); // Lấy 10 job đầu tiên
+        Pageable pageable = PageRequest.of(0, 9); // Lấy 10 job đầu tiên
         List<Job> jobs = jobRepository.findLatestJobs(Job.JobStatus.APPROVED, pageable);
         return jobs.stream().map(jobMapper::toDTO).collect(Collectors.toList());
     }
