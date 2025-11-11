@@ -37,6 +37,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/users/register",
                                 "/users/login",
+                                "/users/**",
                                 "/users/verify",
                                 "/users/request-reset",
                                 "/users/reset-password",

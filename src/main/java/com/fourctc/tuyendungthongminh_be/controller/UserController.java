@@ -107,4 +107,11 @@ public class UserController {
         // Không cần xử lý gì ở server nếu không lưu token
         return ResponseEntity.ok("Đăng xuất thành công");
     }
+
+
+    @GetMapping("/{id}")
+    public User getUser(@PathVariable UUID id) {
+        return userService.getUserById(id);
+    }
+
 }

@@ -209,4 +209,10 @@ public class UserService {
 
         return "Xác minh email thành công! Bạn có thể đăng nhập.";
     }
+
+    public User getUserById(UUID id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+    }
 }
