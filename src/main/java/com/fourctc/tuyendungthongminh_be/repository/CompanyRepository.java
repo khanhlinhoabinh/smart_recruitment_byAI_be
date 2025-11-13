@@ -12,5 +12,5 @@ import java.util.UUID;
 public interface CompanyRepository extends JpaRepository<Company, UUID> {
     List<Company> findByStatus(Company.Status status);
     List<Company> findByFeaturedTrueAndStatus(Company.Status status);
-
+    boolean existsByNameIgnoreCase(String name);
 }
