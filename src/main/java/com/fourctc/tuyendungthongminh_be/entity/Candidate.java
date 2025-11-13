@@ -27,7 +27,7 @@ public class Candidate {
     private String headline;
 
     @ManyToOne
-    @JoinColumn(name = "default_cv_id", referencedColumnName = "cv_id")
+    @JoinColumn(name = "default_cv_id", referencedColumnName = "id")
     private CV defaultCv;
 
     @Enumerated(EnumType.STRING)

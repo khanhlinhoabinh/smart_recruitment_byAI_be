@@ -20,7 +20,7 @@ public class AiCvParsing {
     private UUID parseId;
 
     @ManyToOne
-    @JoinColumn(name = "cv_id", referencedColumnName = "cv_id")
+    @JoinColumn(name = "cv_id", referencedColumnName = "id")
     private CV cv;
 
     @Column(name = "skills", columnDefinition = "JSONB")

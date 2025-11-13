@@ -5,42 +5,32 @@ import lombok.*;
 import java.sql.Timestamp;
 import java.util.UUID;
 
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
-@Table(name = "cv")
 public class CV {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "cv_id", nullable = false, unique = true)
-    private UUID cvId;
+    @GeneratedValue
+    private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "candidate_id", referencedColumnName = "candidate_id")
-    private Candidate candidate;
-
-    @Column(name = "title", nullable = false, length = 150)
+    private UUID userId;
+    private String cvUrl;
     private String title;
 
-    @Column(name = "file_url", length = 255)
-    private String fileUrl;
-
-    @Column(name = "is_default", nullable = false)
-    private boolean isDefault;
-
     @Enumerated(EnumType.STRING)
-    @Column(name = "visibility", nullable = false)
-    private Visibility visibility = Visibility.PRIVATE;
+    private Visibility visibility;
 
-    @Column(name = "created_at", nullable = false)
     private Timestamp createdAt;
-
-    @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
+
+    // 📌 NEW: Thêm quan hệ với Template
+    @ManyToOne
+    @JoinColumn(name = "template_id")
+    private Template template;
 
     public enum Visibility {
         PUBLIC, PRIVATE
