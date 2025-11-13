@@ -37,29 +37,15 @@ public class CompanyService {
     }
 
     public CompanyDTO createCompany(CompanyDTO dto, String createdBy) {
-        Company entity = companyMapper.companyDTOToCompanyEntityForCreate(dto); // DÙNG MAPPER MỚI
-        entity.setCreatedBy(createdBy);
-        entity.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        entity.setFeatured(false);
-
-        if (hasRole("ADMIN")) {
-            entity.setStatus(Company.Status.ACTIVE);
-        } else {
-            entity.setStatus(Company.Status.PENDING);
+        if (companyRepository.existsByNameIgnoreCase(dto.getName())) {
+            throw new IllegalArgumentException("Tên công ty đã tồn tại");
         }
-
-        Company saved = companyRepository.save(entity);
+        Company company = companyMapper.companyDTOToCompanyEntityForCreate(dto);
+        company.setStatus(Company.Status.ACTIVE); // HR tạo là ACTIVE
+        company.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        company.setCreatedBy(createdBy);
+        Company saved = companyRepository.save(company);
         return companyMapper.companyEntityToCompanyDTO(saved);
-    }
-    // ADMIN: Duyệt công ty (chuyển PENDING → ACTIVE)
-    public CompanyDTO approveCompany(UUID id) {
-        Company company = getCompanyOrThrow(id);
-        if (company.getStatus() != Company.Status.PENDING) {
-            throw new IllegalStateException("Chỉ có thể duyệt công ty đang chờ.");
-        }
-        company.setStatus(Company.Status.ACTIVE);
-        Company updated = companyRepository.save(company);
-        return companyMapper.companyEntityToCompanyDTO(updated);
     }
 
     public CompanyDTO updateCompany(UUID id, CompanyDTO dto, String username) {
@@ -80,12 +66,11 @@ public class CompanyService {
         existing.setCity(dto.getCity());
         existing.setSize(Company.CompanySize.valueOf(dto.getSize()));
         existing.setFoundedYear(dto.getFoundedYear());
-
-        // CHỈ ADMIN được sửa status & featured
+        if (dto.getStatus() != null) {
+            existing.setStatus(Company.Status.valueOf(dto.getStatus()));
+        }
+        // CHỈ ADMIN được sửa featured
         if (hasRole("ADMIN")) {
-            if (dto.getStatus() != null) {
-                existing.setStatus(Company.Status.valueOf(dto.getStatus()));
-            }
             if (dto.getFeatured() != null) {
                 existing.setFeatured(dto.getFeatured());
             }

@@ -50,7 +50,7 @@ public class Company {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private Status status = Status.PENDING; // Mới: chờ duyệt
+    private Status status = Status.ACTIVE; // Mới: chờ duyệt
 
     @Column(name = "featured", nullable = false)
     private boolean featured = false;
@@ -62,7 +62,7 @@ public class Company {
     private String createdBy; // Người tạo (HR)
 
     public enum Status {
-        PENDING, ACTIVE, INACTIVE, BANNED
+        ACTIVE, INACTIVE
     }
 
     public enum CompanySize {

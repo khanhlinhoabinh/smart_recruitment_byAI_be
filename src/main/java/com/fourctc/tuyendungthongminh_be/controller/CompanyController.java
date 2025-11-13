@@ -65,18 +65,11 @@ public class CompanyController {
             @RequestParam boolean featured) {
         return ResponseEntity.ok(companyService.setFeatured(id, featured));
     }
-    // ADMIN: Duyệt công ty
-    @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping("/{id}/approve")
-    public ResponseEntity<CompanyDTO> approveCompany(@PathVariable UUID id) {
-        return ResponseEntity.ok(companyService.approveCompany(id));
-    }
-
     // CANDIDATE: Xem công ty nổi bật
     @GetMapping("/featured")
     public ResponseEntity<List<CompanyDTO>> getFeaturedCompanies() {
         return ResponseEntity.ok(companyService.getActiveCompanies().stream()
-                .filter(CompanyDTO::getFeatured)
+                .filter(dto -> Boolean.TRUE.equals(dto.getFeatured()))
                 .collect(Collectors.toList()));
     }
     // CANDIDATE: Xem chi tiết công ty
