@@ -23,7 +23,4 @@ public class EmployerDTO {
     private String department;
     private String workEmail;
     private String phone;
-    private boolean isVerified;
-    private String status;
-    private Timestamp createdAt;
 }

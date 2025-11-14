@@ -38,18 +38,4 @@ public class Employer {
 
     @Column(name = "phone", length = 15)
     private String phone;
-
-    @Column(name = "is_verified", nullable = false)
-    private boolean isVerified;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private Status status = Status.ACTIVE;
-
-    @Column(name = "created_at", nullable = false)
-    private Timestamp createdAt;
-
-    public enum Status {
-        ACTIVE, INACTIVE, BANNED
-    }
 }
