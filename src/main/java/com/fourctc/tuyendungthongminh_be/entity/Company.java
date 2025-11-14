@@ -68,4 +68,14 @@ public class Company {
     public enum CompanySize {
         SMALL, MEDIUM, LARGE, ENTERPRISE
     }
+
+    // Company.java
+    @Column(name = "business_registration_url", length = 500)
+    private String businessRegistrationUrl;
+
+    @Column(name = "business_registration_file_name", length = 200)
+    private String businessRegistrationFileName;
+
+    @Column(name = "business_registration_uploaded_at")
+    private java.sql.Timestamp businessRegistrationUploadedAt;
 }
