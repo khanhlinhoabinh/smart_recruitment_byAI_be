@@ -50,6 +50,7 @@ public class SecurityConfig {
                                 "/jobs/search",
                                 "/jobs/approved",
                                 "/jobs/latest",
+                                "/job-categories",
                                 "/jobs/{id}"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
