@@ -2,7 +2,10 @@
 package com.fourctc.tuyendungthongminh_be.controller;
 
 import com.fourctc.tuyendungthongminh_be.dto.EmployerDTO;
+import com.fourctc.tuyendungthongminh_be.entity.Employer;
 import com.fourctc.tuyendungthongminh_be.service.EmployerService;
+import com.fourctc.tuyendungthongminh_be.mapper.EmployerMapper;
+import com.fourctc.tuyendungthongminh_be.repository.EmployerRepository;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,9 +21,14 @@ import java.util.UUID;
 public class EmployerController {
 
     private final EmployerService employerService;
-
-    public EmployerController(EmployerService employerService) {
+    private final EmployerRepository employerRepository;   // THÊM DÒNG NÀY
+    private final EmployerMapper employerMapper;
+    public EmployerController(EmployerService employerService,
+                              EmployerRepository employerRepository,
+                              EmployerMapper employerMapper) {
         this.employerService = employerService;
+        this.employerRepository = employerRepository;
+        this.employerMapper = employerMapper;
     }
 
     // HR & ADMIN xem hồ sơ employer theo id
@@ -29,6 +37,16 @@ public class EmployerController {
     public ResponseEntity<EmployerDTO> getEmployer(@PathVariable("id") UUID employerId) {
         // Gọi bản service không kiểm tra owner để ADMIN cũng xem được
         return ResponseEntity.ok(employerService.getEmployer(employerId));
+    }
+
+    @PreAuthorize("hasRole('HR')")
+    @GetMapping("/me")
+    public ResponseEntity<EmployerDTO> getMyEmployer(Principal principal) {
+        String currentEmail = principal.getName();
+        Employer employer = employerRepository.findByUser_Email(currentEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Bạn chưa tạo hồ sơ Employer"));
+
+        return ResponseEntity.ok(employerMapper.employerEntityToEmployerDTO(employer));
     }
     // ✅ HR tạo employer KHÔNG cần userId trong body — lấy từ token (Principal)
     @PreAuthorize("hasRole('HR')")
@@ -86,4 +104,5 @@ public class EmployerController {
         EmployerDTO result = employerService.rejectVerification(employerId, reason, principal);
         return ResponseEntity.ok(result);
     }
+
 }
