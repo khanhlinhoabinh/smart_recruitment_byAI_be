@@ -58,5 +58,32 @@ public class EmployerController {
         return ResponseEntity.ok(Map.of("businessRegistrationUrl", url));
     }
 
+    // HR bấm nút "Yêu cầu duyệt" sau khi đã điền đủ + upload GPKD
+    @PreAuthorize("hasRole('HR')")
+    @PostMapping("/{id}/request-verification")
+    public ResponseEntity<EmployerDTO> requestVerification(@PathVariable("id") UUID employerId,
+                                                           Principal principal) {
+        EmployerDTO result = employerService.requestVerification(employerId, principal);
+        return ResponseEntity.ok(result);
+    }
 
+    // CHỈ ADMIN được duyệt
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/{id}/approve-verification")
+    public ResponseEntity<EmployerDTO> approveVerification(@PathVariable("id") UUID employerId,
+                                                           Principal principal) {
+        EmployerDTO result = employerService.approveVerification(employerId, principal);
+        return ResponseEntity.ok(result);
+    }
+
+    // ADMIN từ chối (tùy chọn)
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/{id}/reject-verification")
+    public ResponseEntity<EmployerDTO> rejectVerification(@PathVariable("id") UUID employerId,
+                                                          @RequestBody Map<String, String> body,
+                                                          Principal principal) {
+        String reason = body != null ? body.get("reason") : null;
+        EmployerDTO result = employerService.rejectVerification(employerId, reason, principal);
+        return ResponseEntity.ok(result);
+    }
 }

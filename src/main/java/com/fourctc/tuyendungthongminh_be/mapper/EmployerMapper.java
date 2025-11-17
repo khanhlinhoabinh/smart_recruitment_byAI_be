@@ -14,11 +14,12 @@ public interface EmployerMapper {
             @Mapping(source = "user.fullName", target = "fullName"),
             @Mapping(source = "user.email", target = "email"),
             @Mapping(source = "company.companyId", target = "companyId"),
-            @Mapping(source = "company.name", target = "companyName")
+            @Mapping(source = "company.name", target = "companyName"),
+            @Mapping(source = "verified", target = "verified"),
+            @Mapping(source = "verifiedAt", target = "verifiedAt")
             // Nếu bạn thêm companyBusinessRegistrationUrl vào DTO, map thêm:
             // @Mapping(source = "company.businessRegistrationUrl", target = "companyBusinessRegistrationUrl")
     })
-
     EmployerDTO employerEntityToEmployerDTO(Employer employer);
 
     @InheritInverseConfiguration
