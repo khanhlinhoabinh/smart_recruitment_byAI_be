@@ -158,4 +158,52 @@ public class EmployerServiceImpl implements EmployerService {
                 .orElseThrow(() -> new IllegalArgumentException("Employer không tồn tại"));
         return employerMapper.employerEntityToEmployerDTO(employer);
     }
+    @Override
+    public EmployerDTO requestVerification(UUID employerId, Principal principal) {
+        String currentEmail = resolveCurrentUserEmail(principal);
+        Employer employer = employerRepository.findByEmployerId(employerId)
+                .orElseThrow(() -> new IllegalArgumentException("Employer không tồn tại"));
+
+        // Kiểm tra quyền sở hữu
+        if (employer.getUser() == null || !employer.getUser().getEmail().equals(currentEmail)) {
+            throw new AccessDeniedException("Bạn không có quyền thực hiện hành động này");
+        }
+
+        // Bắt buộc phải có Company + đã upload GPKD
+        if (employer.getCompany() == null || employer.getCompany().getBusinessRegistrationUrl() == null) {
+            throw new IllegalStateException("Vui lòng chọn công ty và upload Giấy phép kinh doanh trước khi gửi yêu cầu duyệt");
+        }
+
+        // Không làm gì thêm, chỉ trả về thông tin (FE sẽ hiển thị trạng thái chờ duyệt vì isVerified = false)
+        return employerMapper.employerEntityToEmployerDTO(employer);
+    }
+    @Override
+    public EmployerDTO approveVerification(UUID employerId, Principal principal) {
+        Employer employer = employerRepository.findByEmployerId(employerId)
+                .orElseThrow(() -> new IllegalArgumentException("Employer không tồn tại"));
+
+        // Chỉ admin mới vào được đây (do @PreAuthorize ở controller)
+
+        User admin = getCurrentUser(resolveCurrentUserEmail(principal));
+
+        employer.setVerified(true);
+        employer.setVerifiedAt(java.sql.Timestamp.from(java.time.Instant.now()));
+        // Nếu muốn biết ai duyệt thì thêm cột verified_by sau, tạm để vậy đã
+
+        employerRepository.save(employer);
+        return employerMapper.employerEntityToEmployerDTO(employer);
+    }
+
+    @Override
+    public EmployerDTO rejectVerification(UUID employerId, String reason, Principal principal) {
+        Employer employer = employerRepository.findByEmployerId(employerId)
+                .orElseThrow(() -> new IllegalArgumentException("Employer không tồn tại"));
+
+        employer.setVerified(false);
+        employer.setVerifiedAt(null);
+        // Có thể thêm cột rejected_reason nếu cần
+
+        employerRepository.save(employer);
+        return employerMapper.employerEntityToEmployerDTO(employer);
+    }
 }

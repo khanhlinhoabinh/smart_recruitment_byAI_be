@@ -13,7 +13,6 @@ import java.util.UUID;
 @Entity
 @Table(name = "employers")
 public class Employer {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "employer_id", nullable = false, unique = true)
@@ -38,4 +37,10 @@ public class Employer {
 
     @Column(name = "phone", length = 15)
     private String phone;
+
+    @Column(name = "is_verified", nullable = false)
+    private boolean verified = false;
+
+    @Column(name = "verified_at")
+    private Timestamp verifiedAt;
 }

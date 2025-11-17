@@ -19,7 +19,6 @@ public interface EmployerService {
     EmployerDTO updateEmployer(UUID employerId, EmployerDTO dto, Principal principal);
 
     String uploadBusinessRegistration(UUID employerId, MultipartFile file, Principal principal);
-
     /**
      * Lấy thông tin employer theo id và ràng buộc quyền truy cập theo Principal (owner).
      * Nếu muốn cho ADMIN xem tất cả, có thể xử lý ở Controller bằng @PreAuthorize hoặc
@@ -35,4 +34,8 @@ public interface EmployerService {
     String uploadBusinessRegistration(UUID employerId, MultipartFile file);
 
     EmployerDTO getEmployer(UUID employerId);
+
+    EmployerDTO requestVerification(UUID employerId, Principal principal);
+    EmployerDTO approveVerification(UUID employerId, Principal principal);
+    EmployerDTO rejectVerification(UUID employerId, String reason, Principal principal);
 }
