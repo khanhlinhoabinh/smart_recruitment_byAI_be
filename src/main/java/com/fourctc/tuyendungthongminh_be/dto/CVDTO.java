@@ -1,25 +1,26 @@
 package com.fourctc.tuyendungthongminh_be.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import lombok.*;
 import java.sql.Timestamp;
 import java.util.UUID;
 
-@Data
-@Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class CVDTO {
-    private UUID cvId;
-    private UUID candidateId;
-    private String candidateName;
+
+    private UUID id;
+    private UUID userId;
+    private String cvUrl;
     private String title;
-    private String fileUrl;
-    private boolean isDefault;
+
     private String visibility;
+
     private Timestamp createdAt;
     private Timestamp updatedAt;
+
+    // 📌 NEW: thêm templateId để render layout
+    private UUID templateId;
 }

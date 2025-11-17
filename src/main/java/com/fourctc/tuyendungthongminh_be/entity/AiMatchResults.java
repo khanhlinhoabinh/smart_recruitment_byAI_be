@@ -20,7 +20,7 @@ public class AiMatchResults {
     private UUID matchId;
 
     @ManyToOne
-    @JoinColumn(name = "cv_id", referencedColumnName = "cv_id")
+    @JoinColumn(name = "cv_id", referencedColumnName = "id")
     private CV cv;
 
     @ManyToOne
