@@ -77,4 +77,10 @@ public class CompanyController {
     public ResponseEntity<CompanyDTO> getCompanyById(@PathVariable UUID id) {
         return ResponseEntity.ok(companyService.getCompanyById(id));
     }
+
+    @GetMapping("/public/search")
+    public ResponseEntity<List<CompanyDTO>> searchCompanies(@RequestParam String name) {
+        return ResponseEntity.ok(companyService.searchCompaniesByName(name));
+    }
+
 }

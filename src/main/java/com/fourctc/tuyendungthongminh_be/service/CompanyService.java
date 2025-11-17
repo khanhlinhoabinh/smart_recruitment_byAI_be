@@ -115,4 +115,10 @@ public class CompanyService {
         }
         return companyMapper.companyEntityToCompanyDTO(company);
     }
+    public List<CompanyDTO> searchCompaniesByName(String name) {
+        return companyRepository.findByNameContainingIgnoreCaseAndStatus(name, Company.Status.ACTIVE)
+                .stream()
+                .map(companyMapper::companyEntityToCompanyDTO)
+                .collect(Collectors.toList());
+    }
 }
