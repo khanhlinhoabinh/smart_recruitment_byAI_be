@@ -10,6 +10,8 @@ import com.fourctc.tuyendungthongminh_be.mapper.CVMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+
 @Service
 public class CVService {
 
@@ -24,6 +26,11 @@ public class CVService {
 
     public CVDTO createCV(CVDTO dto) {
         CV cv = cvMapper.cvDTOToCVEntity(dto);
+
+        // ⭐ Thêm timestamp để tránh lỗi created_at / updated_at = null
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        cv.setCreatedAt(now);
+        cv.setUpdatedAt(now);
 
         if (dto.getTemplateId() != null) {
             Template template = templateRepository.findById(dto.getTemplateId())
