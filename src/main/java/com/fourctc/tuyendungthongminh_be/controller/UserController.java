@@ -114,4 +114,18 @@ public class UserController {
         return userService.getUserById(id);
     }
 
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUserInfo(@PathVariable UUID id, @RequestBody Map<String, String> request) {
+        try {
+            String fullName = request.get("fullName");
+            String phone = request.get("phone");
+
+            User updatedUser = userService.updateUserInfo(id, fullName, phone);
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception ex) {
+            return ResponseEntity.internalServerError().body("Lỗi cập nhật thông tin: " + ex.getMessage());
+        }
+    }
+
 }
