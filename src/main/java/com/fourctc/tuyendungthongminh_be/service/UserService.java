@@ -215,4 +215,18 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
     }
+
+    public User updateUserInfo(UUID id, String fullName, String phone) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+        if (fullName != null && !fullName.isBlank()) {
+            user.setFullName(fullName);
+        }
+        if (phone != null && !phone.isBlank()) {
+            user.setPhone(phone);
+        }
+
+        return userRepository.save(user);
+    }
 }
