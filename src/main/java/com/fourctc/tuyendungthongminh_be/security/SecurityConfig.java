@@ -32,42 +32,41 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> {})
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/users/register",
-                                "/users/login",
-                                "/users/**",
-                                "/users/verify",
-                                "/users/request-reset",
-                                "/users/reset-password",
-                                "/users/validate-reset-token",
-                                "/users/logout",
-                                "/job-categories/popular",
-                                "/companies/public/**",
-                                "/companies/featured",
-                                "/jobs/search",
-                                "/jobs/approved",
-                                "/jobs/latest",
-                                "/job-categories",
-                                "/jobs/{id}",
-                                "/uploads/**"  // 🔥 Cho phép đọc file đã upload
-                        ).permitAll()
-
+                        // 1. Các route admin/hr/candidate phải đứng TRƯỚC
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/hr/**").hasRole("HR")
                         .requestMatchers("/candidate/**").hasRole("CANDIDATE")
 
-                        // 🚀 Upload CV chỉ cho CANDIDATE
-                        .requestMatchers("/api/cv/upload").hasRole("CANDIDATE")
+                        // 2. Public endpoints – chỉ những cái này mới permitAll
+                        .requestMatchers(
+                                "/users/login",
+                                "/users/register",
+                                "/users/verify",
+                                "/users/request-reset",
+                                "/users/reset-password",
+                                "/users/validate-reset-token",
+                                "/job-categories/popular",
+                                "/job-categories",
+                                "/companies/public/**",
+                                "/companies/featured",
+                                "/jobs/search",
+                                "/jobs/latest",
+                                "/jobs/approved",
+                                "/jobs/{id}",
+                                "/uploads/**"
+                        ).permitAll()
 
+                        // 3. Các API khác cần login (nhưng không cần role cụ thể)
+                        .requestMatchers("/users/profile", "/users/me").authenticated()
+
+                        // 4. Tất cả còn lại phải đăng nhập
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .formLogin(login -> login.disable())
-                .httpBasic(basic -> basic.disable());
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
