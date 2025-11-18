@@ -32,7 +32,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> {}) // ✅ Bật CORS
+                .cors(cors -> {})
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/users/register",
@@ -44,21 +44,22 @@ public class SecurityConfig {
                                 "/users/validate-reset-token",
                                 "/users/logout",
                                 "/job-categories/popular",
-                                "/companies/public",
                                 "/companies/public/**",
-                                "/companies/featured",
                                 "/jobs/search",
                                 "/jobs/approved",
                                 "/jobs/latest",
                                 "/job-categories",
-                                "/jobs/{id}"
+                                "/jobs/{id}",
+                                "/uploads/**"  // 🔥 Cho phép đọc file đã upload
                         ).permitAll()
+
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/hr/**").hasRole("HR")
                         .requestMatchers("/candidate/**").hasRole("CANDIDATE")
 
-                        .requestMatchers(HttpMethod.POST, "/api/cv/create")
-                        .hasAnyRole("CANDIDATE", "HR", "ADMIN")
+                        // 🚀 Upload CV chỉ cho CANDIDATE
+                        .requestMatchers("/api/cv/upload").hasRole("CANDIDATE")
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
