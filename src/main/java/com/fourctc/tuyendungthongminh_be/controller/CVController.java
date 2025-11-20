@@ -1,5 +1,5 @@
 package com.fourctc.tuyendungthongminh_be.controller;
-
+import org.springframework.http.MediaType;
 import com.fourctc.tuyendungthongminh_be.dto.CVDTO;
 import com.fourctc.tuyendungthongminh_be.service.CVService;
 import com.fourctc.tuyendungthongminh_be.service.UserService;
@@ -13,6 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -62,28 +64,34 @@ public class CVController {
     }
 
     // UPLOAD FILE CV (PDF/DOC)
-    @PostMapping("/upload")
+    @PostMapping(
+            value = "/upload",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE   // DÒNG QUAN TRỌNG NHẤT
+    )
     public ResponseEntity<?> uploadCandidateCV(
             @RequestParam("file") MultipartFile file,
-            @RequestParam("title") String title,
             Authentication authentication) throws IOException {
+
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("File không được để trống");
+        }
 
         UUID userId = getCurrentUserId(authentication);
 
-        if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body("File is empty");
-        }
-
+        // Lưu file vào thư mục uploads/cv
         String uploadDir = System.getProperty("user.dir") + "/uploads/cv/";
         new File(uploadDir).mkdirs();
+
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-        file.transferTo(new File(uploadDir + fileName));
+        Path filePath = Paths.get(uploadDir + fileName);
+        file.transferTo(filePath.toFile());
 
         String fileUrl = "http://localhost:8080/uploads/cv/" + fileName;
 
+        // Tạo CV trong DB (t
         CVDTO dto = CVDTO.builder()
                 .userId(userId)
-                .title(title)
+                .title(file.getOriginalFilename())        // dùng tên file làm title luôn, hoặc để mặc định
                 .cvUrl(fileUrl)
                 .visibility("PRIVATE")
                 .build();
