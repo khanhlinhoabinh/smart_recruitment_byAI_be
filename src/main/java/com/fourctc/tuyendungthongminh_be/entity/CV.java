@@ -14,10 +14,12 @@ import java.util.UUID;
 public class CV {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(name = "user_id")
     private UUID userId;
+
     private String cvUrl;
     private String title;
 
@@ -27,10 +29,12 @@ public class CV {
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
-    // 📌 NEW: Thêm quan hệ với Template
     @ManyToOne
     @JoinColumn(name = "template_id")
     private Template template;
+
+    @Column(columnDefinition = "JSON")
+    private String data; // Lưu dữ liệu người dùng dưới dạng JSON string
 
     public enum Visibility {
         PUBLIC, PRIVATE

@@ -13,10 +13,12 @@ import java.util.UUID;
 public class Template {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     private String name;
     private String previewImage;  // link hình thumbnail
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String htmlLayout;    // HTML layout của mẫu CV
 }

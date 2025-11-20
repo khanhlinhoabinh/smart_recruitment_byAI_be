@@ -6,11 +6,16 @@ import com.fourctc.tuyendungthongminh_be.entity.Template;
 import com.fourctc.tuyendungthongminh_be.mapper.CVMapper;
 import com.fourctc.tuyendungthongminh_be.repository.CVRepository;
 import com.fourctc.tuyendungthongminh_be.repository.TemplateRepository;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -26,11 +31,30 @@ public class CVService {
     @Autowired
     private CVMapper cvMapper;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
+
     // ==============================
-    // CREATE CV
+    // CREATE CV WITH AUTH
     // ==============================
-    public CVDTO createCV(CVDTO dto) {
+    public CVDTO createCVWithAuth(CVDTO dto, UUID currentUserId) {
         CV cv = cvMapper.cvDTOToCVEntity(dto);
+        cv.setUserId(currentUserId);
+        cv.setVisibility(dto.getVisibility() == null || dto.getVisibility().isEmpty()
+                ? CV.Visibility.PRIVATE
+                : CV.Visibility.valueOf(dto.getVisibility().toUpperCase()));
+        cv.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        cv.setUpdatedAt(cv.getCreatedAt());
+
+        // Convert Map → JSON string
+        if (dto.getData() != null && !dto.getData().isEmpty()) {
+            try {
+                cv.setData(objectMapper.writeValueAsString(dto.getData()));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("Lỗi lưu dữ liệu CV");
+            }
+        }
 
         if (dto.getTemplateId() != null) {
             Template template = templateRepository.findById(dto.getTemplateId())
@@ -58,7 +82,29 @@ public class CVService {
     public void deleteCV(UUID cvId) {
         CV cv = cvRepository.findById(cvId)
                 .orElseThrow(() -> new RuntimeException("CV not found"));
-
         cvRepository.delete(cv);
+    }
+
+    // ==============================
+    // RENDER CV (HTML + DATA)
+    // ==============================
+    public Map<String, Object> renderCV(UUID cvId) {
+        CV cv = cvRepository.findById(cvId)
+                .orElseThrow(() -> new RuntimeException("CV not found"));
+
+        Map<String, Object> result = new java.util.HashMap<>();
+        result.put("htmlLayout", cv.getTemplate() != null ? cv.getTemplate().getHtmlLayout() : "");
+
+        if (cv.getData() != null) {
+            try {
+                Map<String, Object> data = objectMapper.readValue(cv.getData(), new TypeReference<>() {});
+                result.put("data", data);
+            } catch (Exception e) {
+                result.put("data", new HashMap<>());
+            }
+        } else {
+            result.put("data", new HashMap<>());
+        }
+        return result;
     }
 }
