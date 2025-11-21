@@ -62,12 +62,23 @@ public class CVController {
         Map<String, Object> result = cvService.renderCV(cvId);
         return ResponseEntity.ok(result);
     }
+    @PutMapping("/update/{cvId}")
+    public ResponseEntity<CVDTO> updateCV(
+            @PathVariable UUID cvId,
+            @RequestBody CVDTO dto,
+            Authentication authentication) {
+
+        UUID userId = getCurrentUserId(authentication);
+        CVDTO saved = cvService.updateCV(cvId, dto, userId);
+        return ResponseEntity.ok(saved);
+    }
 
     // UPLOAD FILE CV (PDF/DOC)
     @PostMapping(
             value = "/upload",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE   // DÒNG QUAN TRỌNG NHẤT
     )
+
     public ResponseEntity<?> uploadCandidateCV(
             @RequestParam("file") MultipartFile file,
             Authentication authentication) throws IOException {

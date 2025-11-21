@@ -112,4 +112,26 @@ public class CVService {
 
         return result;
     }
+    public CVDTO updateCV(UUID cvId, CVDTO dto, UUID currentUserId) {
+        CV cv = cvRepository.findById(cvId)
+                .orElseThrow(() -> new RuntimeException("CV not found"));
+
+        if (!cv.getUserId().equals(currentUserId)) {
+            throw new RuntimeException("Không có quyền sửa CV này");
+        }
+
+        cv.setTitle(dto.getTitle());
+        cv.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+
+        if (dto.getData() != null) {
+            try {
+                cv.setData(objectMapper.writeValueAsString(dto.getData()));
+            } catch (Exception e) {
+                throw new RuntimeException("Lỗi khi cập nhật dữ liệu CV");
+            }
+        }
+
+        CV saved = cvRepository.save(cv);
+        return cvMapper.cvEntityToCVDTO(saved);
+    }
 }
