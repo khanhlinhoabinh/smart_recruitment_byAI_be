@@ -229,4 +229,11 @@ public class UserService {
 
         return userRepository.save(user);
     }
+    public UUID getUserIdByEmail(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("User not found with email: " + email);
+        }
+        return user.getUserId();
+    }
 }
