@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.List;
 
 @Repository
 public interface EmployerRepository extends JpaRepository<Employer, UUID> {
@@ -20,4 +21,9 @@ public interface EmployerRepository extends JpaRepository<Employer, UUID> {
     boolean existsByWorkEmail(String workEmail);
 
     boolean existsByWorkEmailAndEmployerIdNot(String workEmail, UUID employerId);
+
+    @Query("SELECT e FROM Employer e WHERE e.company.businessRegistrationUrl IS NOT NULL AND e.verified = false")
+    @EntityGraph(attributePaths = {"user", "company"})
+    List<Employer> findPendingVerification();
+
 }
