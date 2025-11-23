@@ -15,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.security.Principal;
 import java.util.Map;
 import java.util.UUID;
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/employers")
@@ -105,4 +107,15 @@ public class EmployerController {
         return ResponseEntity.ok(result);
     }
 
+    // THÊM VÀO CUỐI CLASS EmployerController.java
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/pending-verification")
+    public ResponseEntity<List<EmployerDTO>> getPendingVerificationEmployers() {
+        List<Employer> pending = employerRepository.findPendingVerification();
+        List<EmployerDTO> dtos = pending.stream()
+                .map(employerMapper::employerEntityToEmployerDTO)
+                .toList();
+        return ResponseEntity.ok(dtos);
+    }
 }
