@@ -107,7 +107,6 @@ public class EmployerController {
         return ResponseEntity.ok(result);
     }
 
-    // THÊM VÀO CUỐI CLASS EmployerController.java
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/pending-verification")
