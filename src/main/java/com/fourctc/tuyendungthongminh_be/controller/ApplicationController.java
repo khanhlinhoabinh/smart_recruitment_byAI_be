@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/applications")
@@ -21,27 +22,48 @@ public class ApplicationController {
     private final ApplicationService applicationService;
     private final ApplicationMapper applicationMapper;
 
+     // Ứng viên tạo ứng tuyển
+
     @PostMapping
     public ApplicationDTO createApplication(@RequestBody ApplicationRequest request) {
-        // Lấy email từ JWT thông qua SecurityContext
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userEmail = authentication.getName(); // username trong JWT = email
+        String userEmail = authentication.getName();
 
         Application application = applicationService.createApplication(request, userEmail);
         return applicationMapper.applicationEntityToApplicationDTO(application);
     }
 
+     // Xem danh sách ứng tuyển của ứng viên
 
     @GetMapping("/my")
     public List<ApplicationDTO> getMyApplications() {
-        // Lấy email từ JWT
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
 
-        List<Application> applications = applicationService.getApplicationsForCandidate(userEmail);
-        return applications.stream()
-                .map(applicationMapper::applicationEntityToApplicationDTO)
-                .toList();
+        return applicationService.getApplicationsForCandidate(userEmail);
     }
 
+
+     // HR xem danh sách ứng tuyển theo JobId
+    @GetMapping("/job/{jobId}")
+    public List<ApplicationDTO> getApplicationsByJobId(@PathVariable UUID jobId,
+                                                       @RequestParam(required = false) Application.ApplicationStatus status,
+                                                       @RequestParam(defaultValue = "0") int page,
+                                                       @RequestParam(defaultValue = "10") int size) {
+        return applicationService.getApplicationsByJobId(jobId, status, page, size).getContent();
+    }
+
+     // HR xem chi tiết ứng tuyển
+
+    @GetMapping("/{applicationId}")
+    public ApplicationDTO getApplicationDetail(@PathVariable UUID applicationId) {
+        return applicationService.getApplicationDetail(applicationId);
+    }
+
+     // HR cập nhật trạng thái ứng tuyển
+    @PutMapping("/{applicationId}/status")
+    public ApplicationDTO updateApplicationStatus(@PathVariable UUID applicationId,
+                                                  @RequestParam Application.ApplicationStatus status) {
+        return applicationService.updateApplicationStatus(applicationId, status);
+    }
 }

@@ -58,6 +58,8 @@ public class SecurityConfig {
                         .requestMatchers("/candidate/**").hasRole("CANDIDATE")
                         .requestMatchers(HttpMethod.POST, "/api/applications/**").hasRole("CANDIDATE") // ✅ Cho phép ứng viên ứng tuyển
                         .requestMatchers(HttpMethod.GET, "/api/applications/my").hasRole("CANDIDATE")
+                        .requestMatchers(HttpMethod.GET, "/api/applications/job/**").hasRole("HR")
+                        .requestMatchers(HttpMethod.PUT, "/api/applications/**").hasRole("HR")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

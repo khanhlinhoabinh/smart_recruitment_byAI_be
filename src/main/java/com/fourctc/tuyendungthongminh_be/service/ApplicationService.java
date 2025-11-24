@@ -1,18 +1,21 @@
 
 package com.fourctc.tuyendungthongminh_be.service;
 
+import com.fourctc.tuyendungthongminh_be.dto.ApplicationDTO;
 import com.fourctc.tuyendungthongminh_be.dto.ApplicationRequest;
-import com.fourctc.tuyendungthongminh_be.entity.Application;
-import com.fourctc.tuyendungthongminh_be.entity.CV;
-import com.fourctc.tuyendungthongminh_be.entity.Candidate;
-import com.fourctc.tuyendungthongminh_be.entity.Job;
-import com.fourctc.tuyendungthongminh_be.entity.User;
+import com.fourctc.tuyendungthongminh_be.entity.*;
+import com.fourctc.tuyendungthongminh_be.mapper.ApplicationMapper;
 import com.fourctc.tuyendungthongminh_be.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -23,25 +26,25 @@ public class ApplicationService {
     private final CandidateRepository candidateRepository;
     private final CVRepository cvRepository;
     private final UserRepository userRepository;
+    private final ApplicationMapper applicationMapper;
 
+    /**
+     * Tạo ứng tuyển mới cho ứng viên
+     */
     public Application createApplication(ApplicationRequest request, String userEmail) {
-        // Lấy User từ email
         User user = userRepository.findByEmail(userEmail);
         if (user == null || user.getRole() != User.Role.CANDIDATE) {
             throw new RuntimeException("Người dùng không phải ứng viên");
         }
 
-        // Lấy Candidate từ User
         Candidate candidate = candidateRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Candidate không tồn tại"));
 
-        // Lấy Job và CV
         Job job = jobRepository.findById(request.getJobId())
                 .orElseThrow(() -> new RuntimeException("Job không tồn tại"));
         CV cv = cvRepository.findById(request.getCvId())
                 .orElseThrow(() -> new RuntimeException("CV không tồn tại"));
 
-        // Tạo Application
         Application application = Application.builder()
                 .job(job)
                 .candidate(candidate)
@@ -54,20 +57,55 @@ public class ApplicationService {
         return applicationRepository.save(application);
     }
 
-    //Xem danh sách ứng tuyển của ứng viên
-    public List<Application> getApplicationsForCandidate(String userEmail) {
-        // Lấy User từ email
+    /**
+     * Xem danh sách ứng tuyển của ứng viên
+     */
+    public List<ApplicationDTO> getApplicationsForCandidate(String userEmail) {
         User user = userRepository.findByEmail(userEmail);
         if (user == null || user.getRole() != User.Role.CANDIDATE) {
             throw new RuntimeException("Người dùng không phải ứng viên");
         }
 
-        // Lấy Candidate từ User
         Candidate candidate = candidateRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Candidate không tồn tại"));
 
-        // Lấy danh sách ứng tuyển của Candidate
-        return applicationRepository.findByCandidate(candidate);
+        List<Application> applications = applicationRepository.findByCandidate(candidate);
+        return applications.stream()
+                .map(applicationMapper::applicationEntityToApplicationDTO)
+                .toList();
     }
 
+    /**
+     * Lấy danh sách ứng tuyển theo JobId (cho HR)
+     */
+    public Page<ApplicationDTO> getApplicationsByJobId(UUID jobId, Application.ApplicationStatus status, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("appliedAt").descending());
+        Page<Application> applications = (status != null)
+                ? applicationRepository.findByJob_JobIdAndStatus(jobId, status, pageable)
+                : applicationRepository.findByJob_JobId(jobId, pageable);
+
+        return applications.map(applicationMapper::applicationEntityToApplicationDTO);
+    }
+
+    /**
+     * Xem chi tiết ứng tuyển
+     */
+    public ApplicationDTO getApplicationDetail(UUID applicationId) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Application không tồn tại"));
+        return applicationMapper.applicationEntityToApplicationDTO(application);
+    }
+
+    /**
+     * Cập nhật trạng thái ứng tuyển
+     */
+    public ApplicationDTO updateApplicationStatus(UUID applicationId, Application.ApplicationStatus newStatus) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Application không tồn tại"));
+
+        application.setStatus(newStatus);
+        applicationRepository.save(application);
+
+        return applicationMapper.applicationEntityToApplicationDTO(application);
+    }
 }
