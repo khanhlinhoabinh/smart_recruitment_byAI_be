@@ -53,6 +53,7 @@ public class SecurityConfig {
                                 "/job-categories",
                                 "/jobs/{id}"
                         ).permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/hr/**").hasRole("HR")
                         .requestMatchers("/candidate/**").hasRole("CANDIDATE")
