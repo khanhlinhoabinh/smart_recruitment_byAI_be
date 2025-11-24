@@ -28,4 +28,16 @@ public class CompanyDTO {
     private Boolean featured;  // Dùng Boolean (có thể null)
     private Timestamp createdAt;
     private String createdBy;
+
+
+    // ==== THÊM MỚI: các trường GPKD ====
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String businessRegistrationUrl;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String businessRegistrationFileName;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Timestamp businessRegistrationUploadedAt;
+
 }

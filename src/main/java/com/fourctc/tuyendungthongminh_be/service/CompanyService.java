@@ -121,4 +121,13 @@ public class CompanyService {
                 .map(companyMapper::companyEntityToCompanyDTO)
                 .collect(Collectors.toList());
     }
+
+
+    public CompanyDTO getCompanyByIdAdmin(UUID id) {
+        Company company = companyRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Công ty không tồn tại"));
+        // KHÔNG kiểm tra status; admin/HR được xem toàn bộ
+        return companyMapper.companyEntityToCompanyDTO(company);
+    }
+
 }

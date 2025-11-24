@@ -83,4 +83,13 @@ public class CompanyController {
         return ResponseEntity.ok(companyService.searchCompaniesByName(name));
     }
 
+
+    @PreAuthorize("hasAnyRole('HR','ADMIN')")
+    @GetMapping("/{id}")
+    public ResponseEntity<CompanyDTO> getCompanyByIdAdmin(@PathVariable UUID id) {
+        // Trả về bản đầy đủ không áp ràng buộc status ACTIVE (admin view)
+        return ResponseEntity.ok(companyService.getCompanyByIdAdmin(id));
+    }
+
+
 }
