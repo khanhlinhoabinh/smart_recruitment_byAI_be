@@ -18,5 +18,10 @@ public class Template {
 
     private String name;
     private String previewImage;  // link hình thumbnail
+
+
+    @Lob
+    @Column(columnDefinition = "LONGTEXT") // ✅ Cho phép lưu HTML dài
     private String htmlLayout;    // HTML layout của mẫu CV
+
 }
