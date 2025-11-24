@@ -56,6 +56,8 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/hr/**").hasRole("HR")
                         .requestMatchers("/candidate/**").hasRole("CANDIDATE")
+                        .requestMatchers(HttpMethod.POST, "/api/applications/**").hasRole("CANDIDATE") // ✅ Cho phép ứng viên ứng tuyển
+                        .requestMatchers(HttpMethod.GET, "/api/applications/my").hasRole("CANDIDATE")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

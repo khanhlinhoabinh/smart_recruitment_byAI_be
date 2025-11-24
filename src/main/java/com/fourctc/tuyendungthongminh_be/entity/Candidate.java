@@ -19,7 +19,7 @@ public class Candidate {
     @Column(name = "candidate_id", nullable = false, unique = true)
     private UUID candidateId;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private User user;
 

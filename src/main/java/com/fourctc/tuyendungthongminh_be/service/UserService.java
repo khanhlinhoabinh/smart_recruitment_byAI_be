@@ -3,8 +3,10 @@ package com.fourctc.tuyendungthongminh_be.service;
 import com.fourctc.tuyendungthongminh_be.dto.LoginRequest;
 import com.fourctc.tuyendungthongminh_be.dto.LoginResponse;
 import com.fourctc.tuyendungthongminh_be.dto.UserDTO;
+import com.fourctc.tuyendungthongminh_be.entity.Candidate;
 import com.fourctc.tuyendungthongminh_be.entity.User;
 import com.fourctc.tuyendungthongminh_be.mapper.UserMapper;
+import com.fourctc.tuyendungthongminh_be.repository.CandidateRepository;
 import com.fourctc.tuyendungthongminh_be.repository.UserRepository;
 import com.fourctc.tuyendungthongminh_be.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,11 @@ public class UserService {
 
     @Autowired
     private EmailService emailService;
+
+
+    @Autowired
+    private CandidateRepository candidateRepository;
+
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -78,6 +85,20 @@ public class UserService {
 
         // Gửi email xác minh
         emailService.sendVerificationEmail(savedUser.getEmail(), verificationToken);
+
+
+        // Nếu role là CANDIDATE thì tạo Candidate
+        if (savedUser.getRole() == User.Role.CANDIDATE) {
+            Candidate candidate = Candidate.builder()
+                    .user(savedUser)
+                    .headline(null) // hoặc mặc định
+                    .profileVisibility(Candidate.ProfileVisibility.PUBLIC)
+                    .updatedAt(new Timestamp(System.currentTimeMillis()))
+                    .build();
+
+            candidateRepository.save(candidate);
+        }
+
 
         return userMapper.userEntityToUserDTO(savedUser);
     }
