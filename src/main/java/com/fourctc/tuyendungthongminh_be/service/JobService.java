@@ -14,7 +14,8 @@ import com.fourctc.tuyendungthongminh_be.repository.EmployerRepository;
 import com.fourctc.tuyendungthongminh_be.entity.User;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
-
+import com.fourctc.tuyendungthongminh_be.entity.Employer;   // THÊM DÒNG NÀY
+import com.fourctc.tuyendungthongminh_be.entity.Company;
 import java.util.UUID;
 import java.sql.Timestamp;
 import java.util.List;
@@ -159,6 +160,37 @@ public class JobService {
         return jobRepository.findById(id)
                 .map(jobMapper::toDTO)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy công việc"));
+    }
+
+    // === THÊM VÀO CUỐI JobService.java (trước dấu } cuối cùng) ===
+    public List<JobDTO> getJobsOfMyCompany(Principal principal) {
+        if (principal == null || principal.getName() == null) {
+            throw new IllegalArgumentException("Không xác thực được người dùng");
+        }
+
+        String email = principal.getName();
+
+        // Tìm Employer theo email (dùng method đã có sẵn trong EmployerRepository)
+        Employer employer = employerRepository.findByUser_Email(email)
+                .orElseThrow(() -> new IllegalStateException("Không tìm thấy hồ sơ nhà tuyển dụng của bạn"));
+
+        // Kiểm tra đã xác thực chưa (field boolean verified trong entity)
+        if (!employer.isVerified()) {
+            throw new SecurityException("Hồ sơ nhà tuyển dụng chưa được xác thực");
+        }
+
+        // Lấy companyId từ employer → entity Employer có field Company company
+        Company company = employer.getCompany();
+        if (company == null || company.getCompanyId() == null) {
+            throw new IllegalStateException("Nhà tuyển dụng chưa được liên kết với công ty nào");
+        }
+
+        UUID companyId = company.getCompanyId();
+
+        // Lấy tất cả job của công ty đó
+        return jobRepository.findByCompany_CompanyId(companyId).stream()
+                .map(jobMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
 }

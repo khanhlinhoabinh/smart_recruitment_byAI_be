@@ -84,5 +84,12 @@ public class JobController {
         return ResponseEntity.ok(jobService.getJobById(id));
     }
 
+    // Thêm vào JobController.java – CHỈ HR ĐƯỢC GỌI
+    @PreAuthorize("hasRole('HR')")
+    @GetMapping("/my-company")
+    public ResponseEntity<List<JobDTO>> getMyCompanyJobs(Principal principal) {
+        List<JobDTO> jobs = jobService.getJobsOfMyCompany(principal);
+        return ResponseEntity.ok(jobs);
+    }
 
 }
