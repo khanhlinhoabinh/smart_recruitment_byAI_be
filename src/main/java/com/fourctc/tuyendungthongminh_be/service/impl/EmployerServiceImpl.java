@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.security.Principal;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 @Service
 @Transactional
@@ -205,5 +206,23 @@ public class EmployerServiceImpl implements EmployerService {
 
         employerRepository.save(employer);
         return employerMapper.employerEntityToEmployerDTO(employer);
+    }
+
+    // EmployerServiceImpl.java
+    @Override
+    public List<EmployerDTO> getEmployersByCurrentHrCompany(Principal principal) {
+        String currentEmail = resolveCurrentUserEmail(principal);
+        // Lấy employer của chính user hiện tại
+        Employer me = employerRepository.findByUser_Email(currentEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Bạn chưa tạo hồ sơ Employer"));
+        Company company = me.getCompany();
+        if (company == null || company.getCompanyId() == null) {
+            throw new IllegalStateException("Bạn chưa gắn vào công ty nào");
+        }
+        // Lấy tất cả employer thuộc công ty này
+        List<Employer> list = employerRepository.findByCompany_CompanyId(company.getCompanyId());
+        return list.stream()
+                .map(employerMapper::employerEntityToEmployerDTO)
+                .toList();
     }
 }

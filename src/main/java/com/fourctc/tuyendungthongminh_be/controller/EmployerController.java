@@ -25,6 +25,7 @@ public class EmployerController {
     private final EmployerService employerService;
     private final EmployerRepository employerRepository;   // THÊM DÒNG NÀY
     private final EmployerMapper employerMapper;
+
     public EmployerController(EmployerService employerService,
                               EmployerRepository employerRepository,
                               EmployerMapper employerMapper) {
@@ -50,6 +51,7 @@ public class EmployerController {
 
         return ResponseEntity.ok(employerMapper.employerEntityToEmployerDTO(employer));
     }
+
     // ✅ HR tạo employer KHÔNG cần userId trong body — lấy từ token (Principal)
     @PreAuthorize("hasRole('HR')")
     @PostMapping
@@ -107,7 +109,6 @@ public class EmployerController {
         return ResponseEntity.ok(result);
     }
 
-
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/pending-verification")
     public ResponseEntity<List<EmployerDTO>> getPendingVerificationEmployers() {
@@ -116,5 +117,13 @@ public class EmployerController {
                 .map(employerMapper::employerEntityToEmployerDTO)
                 .toList();
         return ResponseEntity.ok(dtos);
+    }
+
+    // EmployerController.java
+    @PreAuthorize("hasRole('HR')")
+    @GetMapping("/by-company/me")
+    public ResponseEntity<List<EmployerDTO>> getMyCompanyEmployers(Principal principal) {
+        // Lấy danh sách employer thuộc công ty của HR hiện tại
+        return ResponseEntity.ok(employerService.getEmployersByCurrentHrCompany(principal));
     }
 }
