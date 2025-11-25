@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/template")
@@ -25,5 +26,17 @@ public class TemplateController {
     @GetMapping("/list")
     public List<TemplateDTO> list() {
         return templateService.getAll();
+    }
+
+    @PutMapping("/update/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','HR')")
+    public TemplateDTO update(@PathVariable UUID id, @RequestBody TemplateDTO dto) {
+        return templateService.updateTemplate(id, dto);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','HR')")
+    public void delete(@PathVariable UUID id) {
+        templateService.deleteTemplate(id);
     }
 }
