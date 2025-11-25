@@ -4,6 +4,7 @@ import com.fourctc.tuyendungthongminh_be.dto.EmployerDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -17,6 +18,7 @@ public interface EmployerService {
     EmployerDTO createEmployer(EmployerDTO dto, Principal principal);
 
     EmployerDTO updateEmployer(UUID employerId, EmployerDTO dto, Principal principal);
+    List<EmployerDTO> getEmployersByCurrentHrCompany(Principal principal);
 
     String uploadBusinessRegistration(UUID employerId, MultipartFile file, Principal principal);
     /**

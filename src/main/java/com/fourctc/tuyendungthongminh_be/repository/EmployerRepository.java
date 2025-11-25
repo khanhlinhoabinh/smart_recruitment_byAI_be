@@ -25,5 +25,6 @@ public interface EmployerRepository extends JpaRepository<Employer, UUID> {
     @Query("SELECT e FROM Employer e WHERE e.company.businessRegistrationUrl IS NOT NULL AND e.verified = false")
     @EntityGraph(attributePaths = {"user", "company"})
     List<Employer> findPendingVerification();
-
+    List<Employer> findByCompany_CompanyId(UUID companyId);
+    List<Employer> findByCompany_CompanyIdAndVerifiedTrue(UUID companyId);
 }
