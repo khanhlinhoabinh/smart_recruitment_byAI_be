@@ -129,7 +129,7 @@ public class UserService {
                 admin = userRepository.save(admin);
             }
 
-            long accessTokenExpiry = 15 * 60 * 1000;
+            long accessTokenExpiry = 24 * 60 * 60 * 1000;
             long refreshTokenExpiry = request.isRememberMe()
                     ? 30L * 24 * 60 * 60 * 1000
                     : 7L * 24 * 60 * 60 * 1000;
@@ -148,7 +148,7 @@ public class UserService {
             throw new IllegalArgumentException("Email hoặc mật khẩu không đúng");
         }
 
-        long accessTokenExpiry = 15 * 60 * 1000; // 15 phút
+        long accessTokenExpiry = 24 * 60 * 60 * 1000; // 15 phút
         long refreshTokenExpiry = request.isRememberMe()
                 ? 30L * 24 * 60 * 60 * 1000
                 : 7L * 24 * 60 * 60 * 1000;
