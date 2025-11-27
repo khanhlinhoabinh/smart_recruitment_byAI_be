@@ -9,6 +9,7 @@ import org.mapstruct.factory.Mappers;
 @Mapper(componentModel = "spring")
 public interface CompanyMapper {
     @Mapping(target = "status", ignore = true)
+    @Mapping(target = "verify", ignore = true)
     @Mapping(target = "featured", constant = "false")
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
@@ -18,6 +19,7 @@ public interface CompanyMapper {
     Company companyDTOToCompanyEntityForCreate(CompanyDTO dto);
 
     @Mapping(source = "size", target = "size")
+    @Mapping(source = "verify", target = "verify")
     @Mapping(source = "status", target = "status")
     @Mapping(target = "businessRegistrationUrl", ignore = true)
     @Mapping(target = "businessRegistrationFileName", ignore = true)
@@ -27,5 +29,7 @@ public interface CompanyMapper {
     @Mapping(source = "businessRegistrationUrl", target = "businessRegistrationUrl")
     @Mapping(source = "businessRegistrationFileName", target = "businessRegistrationFileName")
     @Mapping(source = "businessRegistrationUploadedAt", target = "businessRegistrationUploadedAt")
+    @Mapping(source = "status", target = "status")
+    @Mapping(source = "verify", target = "verify")
     CompanyDTO companyEntityToCompanyDTO(Company company);
 }
