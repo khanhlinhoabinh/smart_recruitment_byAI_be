@@ -12,6 +12,7 @@ import java.util.UUID;
 public class CompanyDTO {
     private UUID companyId;
     private String name;
+    private String taxCode;
     private String industry;
     private String description;
     private String logoUrl;
@@ -21,16 +22,16 @@ public class CompanyDTO {
     private String city;
     private String size;
     private Integer foundedYear;
-    @JsonInclude(JsonInclude.Include.NON_NULL)  // Không trả về nếu null
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String status;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Boolean featured;  // Dùng Boolean (có thể null)
+    private Boolean featured;
+
     private Timestamp createdAt;
     private String createdBy;
 
-
-    // ==== THÊM MỚI: các trường GPKD ====
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String businessRegistrationUrl;
 
@@ -39,5 +40,4 @@ public class CompanyDTO {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Timestamp businessRegistrationUploadedAt;
-
 }

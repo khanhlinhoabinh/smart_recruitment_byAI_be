@@ -14,4 +14,5 @@ public interface CompanyRepository extends JpaRepository<Company, UUID> {
     List<Company> findByFeaturedTrueAndStatus(Company.Status status);
     List<Company> findByNameContainingIgnoreCaseAndStatus(String name, Company.Status status);
     boolean existsByNameIgnoreCase(String name);
+    boolean existsByTaxCodeIgnoreCase(String taxCode);
 }
