@@ -30,21 +30,24 @@ public class JobController {
         return ResponseEntity.ok(jobService.getAllJobs());
     }
 
-    // ✅ HR thêm job (chờ duyệt)
+
+    // JobController.java
     @PreAuthorize("hasRole('HR')")
     @PostMapping
     public ResponseEntity<String> createJob(@RequestBody JobDTO dto, Principal principal) {
-        jobService.createJob(dto, principal); // gọi service với principal
-        return ResponseEntity.ok("Yêu cầu thêm vị trí công việc đã được gửi đến Admin duyệt.");
+        jobService.createJob(dto, principal);
+        return ResponseEntity.ok("Đã đăng tin tuyển dụng và public cho ứng viên ngay.");
     }
 
-    // ✅ HR sửa job (chờ duyệt lại)
+
+
     @PreAuthorize("hasRole('HR')")
     @PutMapping("/{id}")
     public ResponseEntity<String> updateJob(@PathVariable UUID id, @RequestBody JobDTO dto) {
         jobService.updateJob(id, dto);
-        return ResponseEntity.ok("Yêu cầu cập nhật vị trí công việc đã được gửi đến Admin duyệt.");
+        return ResponseEntity.ok("Đã cập nhật tin tuyển dụng và public cho ứng viên ngay.");
     }
+
 
     // ✅ HR xóa job (xóa trực tiếp, không cần duyệt)
     @PreAuthorize("hasRole('HR')")
@@ -55,11 +58,11 @@ public class JobController {
     }
 
     // ✅ Admin duyệt job
-    @PutMapping("/{id}/approve")
-    public ResponseEntity<JobDTO> approveJob(@PathVariable UUID id, Principal principal) {
-        JobDTO approvedJob = jobService.approveJob(id, principal);
-        return ResponseEntity.ok(approvedJob);
-    }
+    //@PutMapping("/{id}/approve")
+    //public ResponseEntity<JobDTO> approveJob(@PathVariable UUID id, Principal principal) {
+    //    JobDTO approvedJob = jobService.approveJob(id, principal);
+    //    return ResponseEntity.ok(approvedJob);
+    //}
 
     // Lấy danh sách 10 job mới nhất theo ngày đăng (createdAt)
     @GetMapping("/latest")

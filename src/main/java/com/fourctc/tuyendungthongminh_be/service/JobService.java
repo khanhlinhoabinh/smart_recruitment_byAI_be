@@ -70,14 +70,30 @@ public class JobService {
                     .orElseThrow(() -> new IllegalArgumentException("Category not found")));
         }
 
-        job.setStatus(JobStatus.PENDING);
+
+// Set job type từ DTO (tránh null)
+        if (dto.getJobType() != null) {
+            job.setJobType(Job.JobType.valueOf(dto.getJobType()));
+        }
+
+
+        job.setStatus(JobStatus.APPROVED);
         job.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         job.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
-        // Set email người tạo
+
+// Audit người tạo/duyệt là HR
         if (principal != null) {
-            job.setCreatedBy(principal.getName());
+            String hrEmail = principal.getName();
+            job.setCreatedBy(hrEmail);
+
+            User hrUser = userRepository.findByEmail(hrEmail);
+            if (hrUser != null) {
+                job.setApprovedBy(hrUser);
+                job.setApprovedAt(new Timestamp(System.currentTimeMillis()));
+            }
         }
+
         if (job.getViewsCount() == null) {
             job.setViewsCount(0);
         }
@@ -98,9 +114,14 @@ public class JobService {
         job.setSalaryMin(dto.getSalaryMin());
         job.setSalaryMax(dto.getSalaryMax());
         job.setExperienceRequired(dto.getExperienceRequired());
+
         job.setJobType(dto.getJobType() != null ? Job.JobType.valueOf(dto.getJobType()) : job.getJobType());
+
         job.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-        job.setStatus(JobStatus.PENDING); // ✅ HR sửa => gửi yêu cầu duyệt lại
+
+        // Public ngay sau khi cập nhật
+        job.setStatus(JobStatus.APPROVED);
+
         if (job.getViewsCount() == null) {
             job.setViewsCount(0);
         }
