@@ -5,8 +5,7 @@ import lombok.*;
 import java.sql.Timestamp;
 import java.util.UUID;
 
-// package com.fourctc.tuyendungthongminh_be.entity.Company
-
+// Company.java
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 @Entity
 @Table(name = "companies")
@@ -19,6 +18,10 @@ public class Company {
 
     @Column(name = "name", nullable = false, unique = true, length = 150)
     private String name;
+
+    // NEW: Mã số thuế
+    @Column(name = "tax_code", nullable = false, unique = true, length = 50)
+    private String taxCode;
 
     @Column(name = "industry", length = 100)
     private String industry;
@@ -50,7 +53,7 @@ public class Company {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private Status status = Status.ACTIVE; // Mới: chờ duyệt
+    private Status status = Status.ACTIVE;
 
     @Column(name = "featured", nullable = false)
     private boolean featured = false;
@@ -59,17 +62,11 @@ public class Company {
     private Timestamp createdAt = new Timestamp(System.currentTimeMillis());
 
     @Column(name = "created_by", length = 100)
-    private String createdBy; // Người tạo (HR)
+    private String createdBy;
 
-    public enum Status {
-        ACTIVE, INACTIVE
-    }
+    public enum Status { ACTIVE, INACTIVE }
+    public enum CompanySize { SMALL, MEDIUM, LARGE, ENTERPRISE }
 
-    public enum CompanySize {
-        SMALL, MEDIUM, LARGE, ENTERPRISE
-    }
-
-    // Company.java
     @Column(name = "business_registration_url", length = 500)
     private String businessRegistrationUrl;
 

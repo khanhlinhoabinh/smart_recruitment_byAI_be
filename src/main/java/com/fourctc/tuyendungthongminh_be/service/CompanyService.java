@@ -37,16 +37,57 @@ public class CompanyService {
     }
 
     public CompanyDTO createCompany(CompanyDTO dto, String createdBy) {
-        if (companyRepository.existsByNameIgnoreCase(dto.getName())) {
+        // 1) Bắt buộc name và taxCode
+        if (dto.getName() == null || dto.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Tên công ty là bắt buộc");
+        }
+        if (dto.getTaxCode() == null || dto.getTaxCode().trim().isEmpty()) {
+            throw new IllegalArgumentException("Mã số thuế là bắt buộc");
+        }
+
+        // 2) Kiểm tra trùng tên và trùng mã số thuế
+        if (companyRepository.existsByNameIgnoreCase(dto.getName().trim())) {
             throw new IllegalArgumentException("Tên công ty đã tồn tại");
         }
+        if (companyRepository.existsByTaxCodeIgnoreCase(dto.getTaxCode().trim())) {
+            throw new IllegalArgumentException("Mã số thuế đã tồn tại");
+        }
+
+        // 3) Map từ DTO -> Entity (GPKD sẽ set trong logic phía dưới)
         Company company = companyMapper.companyDTOToCompanyEntityForCreate(dto);
-        company.setStatus(Company.Status.ACTIVE); // HR tạo là ACTIVE
+
+        // 4) Set các trường mặc định
+        company.setStatus(Company.Status.ACTIVE);           // giữ nguyên behavior hiện tại
         company.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         company.setCreatedBy(createdBy);
+
+        // 5) Role-based: HR bắt buộc có GPKD, Admin thì không bắt buộc
+        if (hasRole("HR")) {
+            if (isBlank(dto.getBusinessRegistrationUrl()) || isBlank(dto.getBusinessRegistrationFileName())) {
+                throw new IllegalArgumentException("HR tạo công ty phải đính kèm GPKD (URL và tên file)");
+            }
+            company.setBusinessRegistrationUrl(dto.getBusinessRegistrationUrl().trim());
+            company.setBusinessRegistrationFileName(dto.getBusinessRegistrationFileName().trim());
+            company.setBusinessRegistrationUploadedAt(new Timestamp(System.currentTimeMillis()));
+        } else if (hasRole("ADMIN")) {
+            // Admin không bắt buộc, nhưng nếu có dữ liệu vẫn lưu
+            if (!isBlank(dto.getBusinessRegistrationUrl())) {
+                company.setBusinessRegistrationUrl(dto.getBusinessRegistrationUrl().trim());
+                company.setBusinessRegistrationFileName(isBlank(dto.getBusinessRegistrationFileName())
+                        ? "N/A" : dto.getBusinessRegistrationFileName().trim());
+                company.setBusinessRegistrationUploadedAt(new Timestamp(System.currentTimeMillis()));
+            }
+        }
+
+        // 6) Lưu
         Company saved = companyRepository.save(company);
         return companyMapper.companyEntityToCompanyDTO(saved);
     }
+
+    private boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
 
     public CompanyDTO updateCompany(UUID id, CompanyDTO dto, String username) {
         Company existing = getCompanyOrThrow(id);
@@ -66,16 +107,21 @@ public class CompanyService {
         existing.setCity(dto.getCity());
         existing.setSize(Company.CompanySize.valueOf(dto.getSize()));
         existing.setFoundedYear(dto.getFoundedYear());
-        if (dto.getStatus() != null) {
-            existing.setStatus(Company.Status.valueOf(dto.getStatus()));
+
+        // CHO PHÉP ĐỔI MÃ SỐ THUẾ (nếu gửi lên) và kiểm tra trùng
+        if (dto.getTaxCode() != null && !dto.getTaxCode().trim().isEmpty()
+                && !dto.getTaxCode().trim().equalsIgnoreCase(existing.getTaxCode())) {
+            if (companyRepository.existsByTaxCodeIgnoreCase(dto.getTaxCode().trim())) {
+                throw new IllegalArgumentException("Mã số thuế đã tồn tại");
+            }
+            existing.setTaxCode(dto.getTaxCode().trim());
         }
-        // CHỈ ADMIN được sửa featured
+        // ADMIN mới được sửa featured (giữ nguyên)
         if (hasRole("ADMIN")) {
             if (dto.getFeatured() != null) {
                 existing.setFeatured(dto.getFeatured());
             }
         }
-
         Company updated = companyRepository.save(existing);
         return companyMapper.companyEntityToCompanyDTO(updated);
     }
