@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -20,36 +19,37 @@ public class CompanyController {
     @Autowired
     private CompanyService companyService;
 
-    // CANDIDATE: Xem danh sách công ty HOẠT ĐỘNG
+    // PUBLIC: chỉ ACTIVE + APPROVE
     @GetMapping("/public")
     public ResponseEntity<List<CompanyDTO>> getActiveCompanies() {
         return ResponseEntity.ok(companyService.getActiveCompanies());
     }
 
-    // ADMIN: Xem tất cả công ty
+    // ADMIN: tất cả công ty (đã sắp xếp mới nhất + STT)
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<CompanyDTO>> getAllCompanies() {
         return ResponseEntity.ok(companyService.getAllCompanies());
     }
 
+    // HR hoặc ADMIN: tạo công ty (HR -> PENDING, Admin -> APPROVE)
     @PreAuthorize("hasAnyRole('HR', 'ADMIN')")
     @PostMapping
     public ResponseEntity<CompanyDTO> createCompany(@RequestBody CompanyDTO dto, Principal principal) {
         return ResponseEntity.ok(companyService.createCompany(dto, principal.getName()));
     }
 
-    // ADMIN/HR: Cập nhật công ty
+    // HR/ADMIN: cập nhật công ty
     @PreAuthorize("hasAnyRole('HR', 'ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<CompanyDTO> updateCompany(
             @PathVariable UUID id,
-            @RequestBody CompanyDTO dto,  // ← DÙNG DTO MỚI
+            @RequestBody CompanyDTO dto,
             Principal principal) {
         return ResponseEntity.ok(companyService.updateCompany(id, dto, principal.getName()));
     }
 
-    // ADMIN: Xóa công ty
+    // ADMIN: xóa công ty
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCompany(@PathVariable UUID id) {
@@ -57,7 +57,7 @@ public class CompanyController {
         return ResponseEntity.ok("Công ty đã được xóa thành công");
     }
 
-    // ADMIN: Đánh dấu nổi bật
+    // ADMIN: đánh dấu nổi bật (chỉ ACTIVE + APPROVE)
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/featured")
     public ResponseEntity<CompanyDTO> setFeatured(
@@ -65,31 +65,45 @@ public class CompanyController {
             @RequestParam boolean featured) {
         return ResponseEntity.ok(companyService.setFeatured(id, featured));
     }
-    // CANDIDATE: Xem công ty nổi bật
+
+    // PUBLIC: danh sách công ty nổi bật (ACTIVE + APPROVE)
     @GetMapping("/featured")
     public ResponseEntity<List<CompanyDTO>> getFeaturedCompanies() {
         return ResponseEntity.ok(companyService.getActiveCompanies().stream()
                 .filter(dto -> Boolean.TRUE.equals(dto.getFeatured()))
                 .collect(Collectors.toList()));
     }
-    // CANDIDATE: Xem chi tiết công ty
+
+    // PUBLIC: chi tiết công ty (ACTIVE + APPROVE)
     @GetMapping("/public/{id}")
     public ResponseEntity<CompanyDTO> getCompanyById(@PathVariable UUID id) {
         return ResponseEntity.ok(companyService.getCompanyById(id));
     }
 
+    // PUBLIC: search (ACTIVE + APPROVE)
     @GetMapping("/public/search")
     public ResponseEntity<List<CompanyDTO>> searchCompanies(@RequestParam String name) {
         return ResponseEntity.ok(companyService.searchCompaniesByName(name));
     }
 
-
+    // ADMIN/HR: xem chi tiết (không ràng buộc verify/status)
     @PreAuthorize("hasAnyRole('HR','ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<CompanyDTO> getCompanyByIdAdmin(@PathVariable UUID id) {
-        // Trả về bản đầy đủ không áp ràng buộc status ACTIVE (admin view)
         return ResponseEntity.ok(companyService.getCompanyByIdAdmin(id));
     }
 
+    // === NEW: ADMIN phê duyệt (PENDING/REJECT -> APPROVE) ===
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/approve")
+    public ResponseEntity<CompanyDTO> approveCompany(@PathVariable UUID id) {
+        return ResponseEntity.ok(companyService.approveCompany(id));
+    }
 
+    // === NEW: ADMIN từ chối (PENDING -> REJECT) ===
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/reject")
+    public ResponseEntity<CompanyDTO> rejectCompany(@PathVariable UUID id) {
+        return ResponseEntity.ok(companyService.rejectCompany(id));
+    }
 }

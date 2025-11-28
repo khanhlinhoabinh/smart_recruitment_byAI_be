@@ -27,6 +27,9 @@ public class CompanyDTO {
     private String status;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String verify;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Boolean featured;
 
     private Timestamp createdAt;
@@ -40,4 +43,7 @@ public class CompanyDTO {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Timestamp businessRegistrationUploadedAt;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer orderNumber;
 }

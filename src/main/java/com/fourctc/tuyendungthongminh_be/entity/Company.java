@@ -1,3 +1,4 @@
+
 package com.fourctc.tuyendungthongminh_be.entity;
 
 import jakarta.persistence.*;
@@ -5,7 +6,6 @@ import lombok.*;
 import java.sql.Timestamp;
 import java.util.UUID;
 
-// Company.java
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 @Entity
 @Table(name = "companies")
@@ -19,7 +19,6 @@ public class Company {
     @Column(name = "name", nullable = false, unique = true, length = 150)
     private String name;
 
-    // NEW: Mã số thuế
     @Column(name = "tax_code", nullable = false, unique = true, length = 50)
     private String taxCode;
 
@@ -55,6 +54,10 @@ public class Company {
     @Column(name = "status", nullable = false)
     private Status status = Status.ACTIVE;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "verify", nullable = false)
+    private Verify verify = Verify.PENDING;
+
     @Column(name = "featured", nullable = false)
     private boolean featured = false;
 
@@ -65,6 +68,9 @@ public class Company {
     private String createdBy;
 
     public enum Status { ACTIVE, INACTIVE }
+
+    public enum Verify { APPROVE, PENDING, REJECT }
+
     public enum CompanySize { SMALL, MEDIUM, LARGE, ENTERPRISE }
 
     @Column(name = "business_registration_url", length = 500)
