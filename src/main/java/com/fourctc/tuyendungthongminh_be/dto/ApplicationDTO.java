@@ -20,6 +20,7 @@ public class ApplicationDTO {
 
     private UUID candidateId;
     private String candidateName;
+    private String email;
 
     private UUID cvId;
     private String cvTitle;

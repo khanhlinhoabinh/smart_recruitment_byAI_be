@@ -13,6 +13,7 @@ public interface ApplicationMapper {
     @Mapping(source = "job.title", target = "jobTitle") // Lấy title từ Job
     @Mapping(source = "candidate.candidateId", target = "candidateId")
     @Mapping(source = "candidate.user.fullName", target = "candidateName") // Lấy tên từ User trong Candidate
+    @Mapping(source = "candidate.user.email", target = "email")
     @Mapping(source = "cv.id", target = "cvId")
     @Mapping(source = "cv.title", target = "cvTitle") // Lấy title từ CV
     ApplicationDTO applicationEntityToApplicationDTO(Application application);
