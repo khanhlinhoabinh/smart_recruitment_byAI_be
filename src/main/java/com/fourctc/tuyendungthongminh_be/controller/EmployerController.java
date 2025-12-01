@@ -6,11 +6,9 @@ import com.fourctc.tuyendungthongminh_be.entity.Employer;
 import com.fourctc.tuyendungthongminh_be.service.EmployerService;
 import com.fourctc.tuyendungthongminh_be.mapper.EmployerMapper;
 import com.fourctc.tuyendungthongminh_be.repository.EmployerRepository;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.Map;
@@ -70,17 +68,7 @@ public class EmployerController {
         return ResponseEntity.ok(result);
     }
 
-    // ✅ HR upload ĐKKD cho company của employer — không cần userId, service kiểm tra owner
-    @PreAuthorize("hasRole('HR')")
-    @PostMapping(path = "/{id}/business-registration", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Map<String, String>> uploadBusinessRegistration(@PathVariable("id") UUID employerId,
-                                                                          @RequestPart("file") MultipartFile file,
-                                                                          Principal principal) {
-        String url = employerService.uploadBusinessRegistration(employerId, file, principal);
-        return ResponseEntity.ok(Map.of("businessRegistrationUrl", url));
-    }
-
-    // HR bấm nút "Yêu cầu duyệt" sau khi đã điền đủ + upload GPKD
+    // HR bấm nút "Yêu cầu duyệt" — KHÔNG yêu cầu upload GPKD nữa
     @PreAuthorize("hasRole('HR')")
     @PostMapping("/{id}/request-verification")
     public ResponseEntity<EmployerDTO> requestVerification(@PathVariable("id") UUID employerId,
@@ -108,11 +96,10 @@ public class EmployerController {
         EmployerDTO result = employerService.rejectVerification(employerId, reason, principal);
         return ResponseEntity.ok(result);
     }
-
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/pending-verification")
     public ResponseEntity<List<EmployerDTO>> getPendingVerificationEmployers() {
-        List<Employer> pending = employerRepository.findPendingVerification();
+        List<Employer> pending = employerRepository.findByVerifiedFalse();
         List<EmployerDTO> dtos = pending.stream()
                 .map(employerMapper::employerEntityToEmployerDTO)
                 .toList();
