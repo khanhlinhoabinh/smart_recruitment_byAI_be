@@ -42,6 +42,6 @@ public class Application {
     private Timestamp appliedAt = new Timestamp(System.currentTimeMillis());
 
     public enum ApplicationStatus {
-        PENDING, REVIEWED, INTERVIEW, HIRED, REJECTED
+        PENDING, REVIEWED, HIRED, REJECTED
     }
 }
