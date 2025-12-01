@@ -96,7 +96,6 @@ public class EmployerController {
         EmployerDTO result = employerService.rejectVerification(employerId, reason, principal);
         return ResponseEntity.ok(result);
     }
-
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/pending-verification")
     public ResponseEntity<List<EmployerDTO>> getPendingVerificationEmployers() {
