@@ -17,8 +17,6 @@ public interface EmployerMapper {
             @Mapping(source = "company.name", target = "companyName"),
             @Mapping(source = "verified", target = "verified"),
             @Mapping(source = "verifiedAt", target = "verifiedAt")
-            // Nếu bạn thêm companyBusinessRegistrationUrl vào DTO, map thêm:
-            // @Mapping(source = "company.businessRegistrationUrl", target = "companyBusinessRegistrationUrl")
     })
     EmployerDTO employerEntityToEmployerDTO(Employer employer);
 
