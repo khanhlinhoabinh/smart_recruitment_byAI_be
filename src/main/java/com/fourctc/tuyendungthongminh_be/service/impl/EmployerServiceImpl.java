@@ -8,12 +8,8 @@ import com.fourctc.tuyendungthongminh_be.repository.EmployerRepository;
 import com.fourctc.tuyendungthongminh_be.repository.UserRepository;
 import com.fourctc.tuyendungthongminh_be.service.EmployerService;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import java.io.IOException;
-import java.nio.file.*;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.List;
@@ -24,8 +20,6 @@ public class EmployerServiceImpl implements EmployerService {
     private final EmployerRepository employerRepository;
     private final EmployerMapper employerMapper;
     private final UserRepository userRepository;
-    @Value("${app.upload.base-dir:uploads}")
-    private String baseUploadDir;
     public EmployerServiceImpl(EmployerRepository employerRepository,
                                EmployerMapper employerMapper,
                                UserRepository userRepository) {
@@ -97,38 +91,7 @@ public class EmployerServiceImpl implements EmployerService {
         return employerMapper.employerEntityToEmployerDTO(saved);
     }
     // ================= UPLOAD BUSINESS REGISTRATION =================
-    @Override
-    public String uploadBusinessRegistration(UUID employerId, MultipartFile file, Principal principal) {
-        if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("File ĐKKD trống");
-        }
-        String currentEmail = resolveCurrentUserEmail(principal);
-        User currentUser = getCurrentUser(currentEmail);
-        Employer employer = employerRepository.findByEmployerId(employerId)
-                .orElseThrow(() -> new IllegalArgumentException("Employer không tồn tại"));
-        String ownerEmail = employer.getUser() != null ? employer.getUser().getEmail() : null;
-        ensureOwner(ownerEmail, currentEmail);
-        Company company = employer.getCompany();
-        if (company == null || company.getCompanyId() == null) {
-            throw new IllegalStateException("Employer chưa gắn Company");
-        }
-        String companyIdStr = company.getCompanyId().toString();
-        String originalName = Path.of(file.getOriginalFilename()).getFileName().toString();
-        String ext = originalName.contains(".") ? originalName.substring(originalName.lastIndexOf('.')) : "";
-        String storedName = "business_registration-" + Instant.now().toEpochMilli() + ext;
-        Path companyDir = Path.of(baseUploadDir, "company", companyIdStr);
-        Path storedPath = companyDir.resolve(storedName);
-        try {
-            Files.createDirectories(companyDir);
-            Files.copy(file.getInputStream(), storedPath, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw new RuntimeException("Lỗi lưu file ĐKKD: " + e.getMessage(), e);
-        }
-        company.setBusinessRegistrationUrl("/" + baseUploadDir + "/company/" + companyIdStr + "/" + storedName);
-        company.setBusinessRegistrationFileName(storedName);
-        company.setBusinessRegistrationUploadedAt(java.sql.Timestamp.from(Instant.now()));
-        return company.getBusinessRegistrationUrl();
-    }
+
     // ================= GET =================
     @Override
     public EmployerDTO getEmployer(UUID employerId, Principal principal) {
@@ -149,35 +112,30 @@ public class EmployerServiceImpl implements EmployerService {
     public EmployerDTO updateEmployer(UUID employerId, EmployerDTO dto) {
         throw new UnsupportedOperationException("Hãy dùng updateEmployer(id, dto, principal).");
     }
-    @Override
-    public String uploadBusinessRegistration(UUID employerId, MultipartFile file) {
-        throw new UnsupportedOperationException("Hãy dùng uploadBusinessRegistration(id, file, principal).");
-    }
+
     @Override
     public EmployerDTO getEmployer(UUID employerId) {
         Employer employer = employerRepository.findByEmployerId(employerId)
                 .orElseThrow(() -> new IllegalArgumentException("Employer không tồn tại"));
         return employerMapper.employerEntityToEmployerDTO(employer);
     }
+
     @Override
     public EmployerDTO requestVerification(UUID employerId, Principal principal) {
         String currentEmail = resolveCurrentUserEmail(principal);
         Employer employer = employerRepository.findByEmployerId(employerId)
                 .orElseThrow(() -> new IllegalArgumentException("Employer không tồn tại"));
-
-        // Kiểm tra quyền sở hữu
+        // Quyền sở hữu
         if (employer.getUser() == null || !employer.getUser().getEmail().equals(currentEmail)) {
             throw new AccessDeniedException("Bạn không có quyền thực hiện hành động này");
         }
-
-        // Bắt buộc phải có Company + đã upload GPKD
-        if (employer.getCompany() == null || employer.getCompany().getBusinessRegistrationUrl() == null) {
-            throw new IllegalStateException("Vui lòng chọn công ty và upload Giấy phép kinh doanh trước khi gửi yêu cầu duyệt");
+        // Tuỳ chọn: vẫn yêu cầu đã gắn Company; nếu muốn bỏ luôn thì xoá khối này
+        if (employer.getCompany() == null || employer.getCompany().getCompanyId() == null) {
+            throw new IllegalStateException("Vui lòng chọn công ty trước khi gửi yêu cầu duyệt");
         }
-
-        // Không làm gì thêm, chỉ trả về thông tin (FE sẽ hiển thị trạng thái chờ duyệt vì isVerified = false)
         return employerMapper.employerEntityToEmployerDTO(employer);
     }
+
     @Override
     public EmployerDTO approveVerification(UUID employerId, Principal principal) {
         Employer employer = employerRepository.findByEmployerId(employerId)
