@@ -22,9 +22,11 @@ public interface EmployerRepository extends JpaRepository<Employer, UUID> {
 
     boolean existsByWorkEmailAndEmployerIdNot(String workEmail, UUID employerId);
 
-    @Query("SELECT e FROM Employer e WHERE e.company.businessRegistrationUrl IS NOT NULL AND e.verified = false")
+
+// Danh sách employer chưa được verify, KHÔNG phụ thuộc vào việc đã upload GPKD
     @EntityGraph(attributePaths = {"user", "company"})
-    List<Employer> findPendingVerification();
+    List<Employer> findByVerifiedFalse();
+
     List<Employer> findByCompany_CompanyId(UUID companyId);
     List<Employer> findByCompany_CompanyIdAndVerifiedTrue(UUID companyId);
 }
