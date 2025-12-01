@@ -1,7 +1,6 @@
 package com.fourctc.tuyendungthongminh_be.service;
 
 import com.fourctc.tuyendungthongminh_be.dto.EmployerDTO;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
@@ -20,7 +19,6 @@ public interface EmployerService {
     EmployerDTO updateEmployer(UUID employerId, EmployerDTO dto, Principal principal);
     List<EmployerDTO> getEmployersByCurrentHrCompany(Principal principal);
 
-    String uploadBusinessRegistration(UUID employerId, MultipartFile file, Principal principal);
     /**
      * Lấy thông tin employer theo id và ràng buộc quyền truy cập theo Principal (owner).
      * Nếu muốn cho ADMIN xem tất cả, có thể xử lý ở Controller bằng @PreAuthorize hoặc
@@ -32,8 +30,6 @@ public interface EmployerService {
     EmployerDTO createEmployer(EmployerDTO dto);
 
     EmployerDTO updateEmployer(UUID employerId, EmployerDTO dto);
-
-    String uploadBusinessRegistration(UUID employerId, MultipartFile file);
 
     EmployerDTO getEmployer(UUID employerId);
 
