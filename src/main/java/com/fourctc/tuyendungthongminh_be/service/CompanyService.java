@@ -29,7 +29,9 @@ public interface CompanyService {
     CompanyDTO rejectCompany(UUID id);
     CompanyDTO setFeatured(UUID id, boolean featured);
 
-    /* ===== NEW: HR upload GPKD & request verify ===== */
-    Map<String, Object> uploadBusinessRegistrationForCompany(UUID companyId, MultipartFile file, Principal principal);
     CompanyDTO requestVerificationForCompany(UUID companyId, Principal principal);
+
+    CompanyDTO createCompanyForHR(CompanyDTO dto, String createdByEmail);
+
+    CompanyDTO updateCompanyForHR(UUID companyId, CompanyDTO dto, String username);
 }
