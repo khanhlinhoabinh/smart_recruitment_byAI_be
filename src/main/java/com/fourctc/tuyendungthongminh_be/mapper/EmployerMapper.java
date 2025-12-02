@@ -16,10 +16,15 @@ public interface EmployerMapper {
             @Mapping(source = "company.companyId", target = "companyId"),
             @Mapping(source = "company.name", target = "companyName"),
             @Mapping(source = "verified", target = "verified"),
-            @Mapping(source = "verifiedAt", target = "verifiedAt")
+            @Mapping(source = "verifiedAt", target = "verifiedAt"),
+            @Mapping(source = "laborContractPath", target = "laborContractPath") // <-- map path ra DTO
+
     })
     EmployerDTO employerEntityToEmployerDTO(Employer employer);
 
     @InheritInverseConfiguration
+
+    @Mapping(target = "laborContractPath", ignore = true) // xử lý riêng trong Service
+
     Employer employerDTOToEmployerEntity(EmployerDTO employerDTO);
 }

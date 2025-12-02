@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 import java.sql.Timestamp;
 import java.util.UUID;
@@ -25,4 +28,8 @@ public class EmployerDTO {
     private boolean verified;
     private Timestamp verifiedAt;
 
+    @JsonIgnore                  // input, không trả về JSON
+    private MultipartFile laborContractFile;
+
+    private String laborContractPath; // output: đường dẫn đã lưu để FE thấy
 }
