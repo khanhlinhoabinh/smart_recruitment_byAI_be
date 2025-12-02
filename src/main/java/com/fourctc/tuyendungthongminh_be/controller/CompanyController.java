@@ -110,17 +110,6 @@ public class CompanyController {
         return ResponseEntity.ok(companyService.setFeatured(companyId, featured));
     }
 
-    /* ===== NEW: HR UPLOAD GPKD & REQUEST VERIFY ===== */
-
-    // HR upload GPKD cho company — service kiểm tra owner (createdBy == principal)
-    @PreAuthorize("hasRole('HR')")
-    @PostMapping(path = "/{id}/business-registration", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Map<String, Object>> uploadBusinessRegistrationForCompany(@PathVariable("id") UUID companyId,
-                                                                                    @RequestPart("file") MultipartFile file,
-                                                                                    Principal principal) {
-        Map<String, Object> payload = companyService.uploadBusinessRegistrationForCompany(companyId, file, principal);
-        return ResponseEntity.ok(payload);
-    }
 
     // HR “Yêu cầu duyệt” -> verify=PENDING (yêu cầu: phải có GPKD)
     @PreAuthorize("hasRole('HR')")
@@ -129,5 +118,22 @@ public class CompanyController {
                                                                  Principal principal) {
         CompanyDTO dto = companyService.requestVerificationForCompany(companyId, principal);
         return ResponseEntity.ok(dto);
+    }
+    // Tạo công ty cho HR – BẮT BUỘC có businessRegistrationUrl
+    @PreAuthorize("hasRole('HR')")
+    @PostMapping("/hr")
+    public ResponseEntity<CompanyDTO> createCompanyForHR(@RequestBody CompanyDTO dto, Principal principal) {
+        CompanyDTO result = companyService.createCompanyForHR(dto, principal.getName());
+        return ResponseEntity.ok(result);
+    }
+
+    @PreAuthorize("hasRole('HR')")
+    @PutMapping("/hr/{id}")
+    public ResponseEntity<CompanyDTO> updateCompanyForHR(
+            @PathVariable UUID id,
+            @RequestBody CompanyDTO dto,
+            Principal principal) {
+        CompanyDTO result = companyService.updateCompanyForHR(id, dto, principal.getName());
+        return ResponseEntity.ok(result);
     }
 }
