@@ -9,6 +9,8 @@ import com.fourctc.tuyendungthongminh_be.repository.EmployerRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.Map;
@@ -49,21 +51,28 @@ public class EmployerController {
 
         return ResponseEntity.ok(employerMapper.employerEntityToEmployerDTO(employer));
     }
-
     // ✅ HR tạo employer KHÔNG cần userId trong body — lấy từ token (Principal)
     @PreAuthorize("hasRole('HR')")
-    @PostMapping
-    public ResponseEntity<EmployerDTO> createEmployer(@RequestBody EmployerDTO dto, Principal principal) {
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<EmployerDTO> createEmployer(@ModelAttribute EmployerDTO dto,
+                                                      @RequestPart(value = "laborContractFile", required = false) MultipartFile laborContractFile,
+                                                      Principal principal) {
+        // Gán file vào DTO để service xử lý
+        dto.setLaborContractFile(laborContractFile);
         EmployerDTO result = employerService.createEmployer(dto, principal);
         return ResponseEntity.ok(result);
     }
 
     // ✅ HR cập nhật employer (service sẽ kiểm tra owner theo Principal)
     @PreAuthorize("hasRole('HR')")
-    @PutMapping("/{id}")
+
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<EmployerDTO> updateEmployer(@PathVariable("id") UUID employerId,
-                                                      @RequestBody EmployerDTO dto,
+                                                      @ModelAttribute EmployerDTO dto,
+                                                      @RequestPart(value = "laborContractFile", required = false) MultipartFile laborContractFile,
                                                       Principal principal) {
+        dto.setLaborContractFile(laborContractFile);
         EmployerDTO result = employerService.updateEmployer(employerId, dto, principal);
         return ResponseEntity.ok(result);
     }

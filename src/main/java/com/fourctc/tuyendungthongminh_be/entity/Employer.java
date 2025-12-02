@@ -43,4 +43,9 @@ public class Employer {
 
     @Column(name = "verified_at")
     private Timestamp verifiedAt;
+
+    @Column(name = "labor_contract_path", length = 500)
+    private String laborContractPath;
+
+
 }
