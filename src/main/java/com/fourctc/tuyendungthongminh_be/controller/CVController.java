@@ -21,7 +21,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/cv")
-@PreAuthorize("hasRole('CANDIDATE')") // TẤT CẢ ENDPOINT TRONG /api/cv/** CHỈ CANDIDATE MỚI VÀO ĐƯỢC
+@PreAuthorize("hasAnyRole('CANDIDATE','HR')")
 public class CVController {
 
     @Autowired
