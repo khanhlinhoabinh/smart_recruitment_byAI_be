@@ -46,4 +46,8 @@ public class CompanyDTO {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer orderNumber;
+    private String rejectReason;
+    private Timestamp rejectedAt;
+
+// Getter & Setter
 }

@@ -31,5 +31,7 @@ public interface CompanyMapper {
     @Mapping(source = "businessRegistrationUploadedAt", target = "businessRegistrationUploadedAt")
     @Mapping(source = "status", target = "status")
     @Mapping(source = "verify", target = "verify")
-    CompanyDTO companyEntityToCompanyDTO(Company company);
+    @Mapping(source = "rejectReason", target = "rejectReason")
+    @Mapping(source = "rejectedAt", target = "rejectedAt")
+    CompanyDTO companyEntityToCompanyDTO(Company entity);
 }
