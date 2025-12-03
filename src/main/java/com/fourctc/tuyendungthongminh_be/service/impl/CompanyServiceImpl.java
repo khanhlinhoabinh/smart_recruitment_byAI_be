@@ -257,10 +257,14 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public CompanyDTO rejectCompany(UUID id) {
+    public CompanyDTO rejectCompany(UUID id, String reason) {
         Company company = getCompanyOrThrow(id);
+
         company.setVerify(Company.Verify.REJECT);
+        company.setRejectReason(reason);        // LƯU LÝ DO VÀO DB
+        company.setRejectedAt(Timestamp.from(Instant.now()));
         company.setFeatured(false);
+
         Company saved = companyRepository.save(company);
         return companyMapper.companyEntityToCompanyDTO(saved);
     }

@@ -97,8 +97,16 @@ public class CompanyController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/reject")
-    public ResponseEntity<CompanyDTO> rejectCompany(@PathVariable("id") UUID companyId) {
-        return ResponseEntity.ok(companyService.rejectCompany(companyId));
+    public ResponseEntity<CompanyDTO> rejectCompany(
+            @PathVariable("id") UUID companyId,
+            @RequestBody Map<String, String> body) {  // Nhận JSON { "reason": "..." }
+
+        String reason = body.get("reason");
+        if (reason == null || reason.trim().isEmpty()) {
+            throw new IllegalArgumentException("Lý do từ chối là bắt buộc");
+        }
+
+        return ResponseEntity.ok(companyService.rejectCompany(companyId, reason.trim()));
     }
 
     /* ===== FEATURED (ADMIN) ===== */

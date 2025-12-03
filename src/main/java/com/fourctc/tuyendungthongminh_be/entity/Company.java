@@ -81,4 +81,9 @@ public class Company {
 
     @Column(name = "business_registration_uploaded_at")
     private java.sql.Timestamp businessRegistrationUploadedAt;
+    @Column(name = "reject_reason", columnDefinition = "TEXT")
+    private String rejectReason;
+
+    @Column(name = "rejected_at")
+    private Timestamp rejectedAt;
 }

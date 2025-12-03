@@ -24,9 +24,10 @@ public interface CompanyService {
     CompanyDTO updateCompany(UUID id, CompanyDTO dto, String username);
     void deleteCompany(UUID id);
 
+
     /* ===== Verify/Featured (Admin) ===== */
     CompanyDTO approveCompany(UUID id);
-    CompanyDTO rejectCompany(UUID id);
+    CompanyDTO rejectCompany(UUID id, String reason);  // Thêm tham số reason
     CompanyDTO setFeatured(UUID id, boolean featured);
 
     CompanyDTO requestVerificationForCompany(UUID companyId, Principal principal);
