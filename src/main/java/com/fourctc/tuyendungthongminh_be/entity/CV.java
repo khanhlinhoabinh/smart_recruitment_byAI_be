@@ -19,8 +19,8 @@ public class CV {
 
     @Column(name = "user_id")
     private UUID userId;
-
     private String cvUrl;
+    private String imageUrl;
     private String title;
 
     @Enumerated(EnumType.STRING)
