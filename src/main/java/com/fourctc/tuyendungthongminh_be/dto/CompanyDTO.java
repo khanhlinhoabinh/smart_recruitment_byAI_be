@@ -1,10 +1,12 @@
 package com.fourctc.tuyendungthongminh_be.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Timestamp;
 import java.util.UUID;
@@ -48,6 +50,12 @@ public class CompanyDTO {
     private Integer orderNumber;
     private String rejectReason;
     private Timestamp rejectedAt;
+
+
+    // INPUT: file upload (không trả ra JSON)
+    @JsonIgnore
+    private MultipartFile businessRegistrationFile;
+
 
 // Getter & Setter
 }
