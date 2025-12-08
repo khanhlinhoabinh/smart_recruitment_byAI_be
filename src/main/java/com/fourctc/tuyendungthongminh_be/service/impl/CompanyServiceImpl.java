@@ -58,6 +58,57 @@ public class CompanyServiceImpl implements CompanyService {
                 .anyMatch(a -> a.getAuthority().equals("ROLE_" + role));
     }
 
+    // ================== Helper upload GPKD ==================
+    private String saveBusinessRegistrationFile(MultipartFile file, UUID companyId) {
+        try {
+            if (file == null || file.isEmpty()) return null;
+
+            String contentType = file.getContentType();
+            if (contentType == null ||
+                    !(contentType.startsWith("image/") || contentType.equals("application/pdf"))) {
+                throw new IllegalArgumentException("Chỉ cho phép upload ảnh (.png/.jpg) hoặc PDF");
+            }
+            long maxBytes = 10 * 1024 * 1024; // 10MB
+            if (file.getSize() > maxBytes) {
+                throw new IllegalArgumentException("File quá lớn, tối đa 10MB");
+            }
+
+            // Thư mục: <user.dir>/<baseUploadDir>/business-registrations
+            String root = System.getProperty("user.dir");
+            Path dirPath = Paths.get(root, baseUploadDir, "business-registrations");
+
+            // Xác định đuôi file
+            String original = file.getOriginalFilename();
+            String ext = ".dat";
+            if (original != null && original.lastIndexOf('.') >= 0) {
+                ext = original.substring(original.lastIndexOf('.'));
+            } else if ("application/pdf".equals(contentType)) {
+                ext = ".pdf";
+            } else if (contentType.startsWith("image/")) {
+                ext = ".png";
+            }
+
+            // Tên file cố định: <companyId>.<ext> (overwrite khi update)
+            String fileName = companyId + ext;
+            Path filePath = dirPath.resolve(fileName);
+
+            Files.createDirectories(filePath.getParent());
+            try (var in = file.getInputStream()) {
+                Files.copy(in, filePath, StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            // Trả về path tương đối để lưu DB & trả ra DTO
+            String relativePath = baseUploadDir + "/business-registrations/" + fileName;
+            System.out.println("[SAVE] Business registration stored at: " + filePath.toAbsolutePath());
+            return relativePath;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Upload GPKD thất bại: " + e.getMessage(), e);
+        }
+    }
+
+
     /* ===== PUBLIC ===== */
     @Override
     public List<CompanyDTO> getActiveCompanies() {
@@ -139,16 +190,45 @@ public class CompanyServiceImpl implements CompanyService {
         return companyMapper.companyEntityToCompanyDTO(saved);
     }
 
-    // Thêm: Method mới cho HR với upload tích hợp
+
+    // ================== CREATE COMPANY (HR upload) ==================
     @Override
     public CompanyDTO createCompanyForHR(CompanyDTO dto, String createdByEmail) {
-        // HR bắt buộc phải có URL giấy phép kinh doanh
-        if (isBlank(dto.getBusinessRegistrationUrl())) {
-            throw new IllegalArgumentException("HR phải cung cấp URL Giấy phép kinh doanh");
+        // Validate cơ bản: name, taxCode, unique
+        if (isBlank(dto.getName())) throw new IllegalArgumentException("Tên công ty là bắt buộc");
+        if (isBlank(dto.getTaxCode())) throw new IllegalArgumentException("Mã số thuế là bắt buộc");
+        if (companyRepository.existsByNameIgnoreCase(dto.getName().trim()))
+            throw new IllegalArgumentException("Tên công ty đã tồn tại");
+        if (companyRepository.existsByTaxCodeIgnoreCase(dto.getTaxCode().trim()))
+            throw new IllegalArgumentException("Mã số thuế đã tồn tại");
+
+        // YÊU CẦU: HR phải upload file GPKD (không dùng URL nữa)
+        MultipartFile brFile = dto.getBusinessRegistrationFile();
+        if (brFile == null || brFile.isEmpty()) {
+            throw new IllegalArgumentException("Vui lòng upload file Giấy phép kinh doanh (PDF/Ảnh)");
         }
-        // Gọi lại hàm chung → tự động set PENDING + validate
-        return createCompany(dto, createdByEmail);
+
+        // Tạo entity trước để có companyId
+        Company company = companyMapper.companyDTOToCompanyEntityForCreate(dto);
+        company.setCreatedAt(Timestamp.from(Instant.now()));
+        company.setCreatedBy(createdByEmail);
+        company.setStatus(Company.Status.ACTIVE);
+        company.setVerify(Company.Verify.PENDING);   // HR tạo -> PENDING
+
+        Company saved = companyRepository.save(company);
+
+        // Lưu file & cập nhật path
+        String path = saveBusinessRegistrationFile(brFile, saved.getCompanyId());
+        saved.setBusinessRegistrationUrl(path);
+        saved.setBusinessRegistrationFileName(
+                (brFile.getOriginalFilename() == null || brFile.getOriginalFilename().isBlank())
+                        ? "GPKD" : brFile.getOriginalFilename().trim());
+        saved.setBusinessRegistrationUploadedAt(Timestamp.from(Instant.now()));
+
+        Company after = companyRepository.save(saved);
+        return companyMapper.companyEntityToCompanyDTO(after);
     }
+
 
     @Override
     public CompanyDTO updateCompany(UUID id, CompanyDTO dto, String username) {
@@ -194,17 +274,21 @@ public class CompanyServiceImpl implements CompanyService {
         return companyMapper.companyEntityToCompanyDTO(updated);
     }
 
+
+    // ================== UPDATE COMPANY (HR upload optional) ==================
     @Override
     public CompanyDTO updateCompanyForHR(UUID companyId, CompanyDTO dto, String username) {
         Company existing = getCompanyOrThrow(companyId);
         ensureOwner(existing.getCreatedBy(), username);
 
-        // Nếu chưa có GPKD → bắt buộc phải gửi URL khi update
-        if (isBlank(existing.getBusinessRegistrationUrl()) && isBlank(dto.getBusinessRegistrationUrl())) {
-            throw new IllegalArgumentException("Công ty chưa có Giấy phép kinh doanh. Vui lòng cung cấp URL GPKD.");
+        // Nếu chưa có GPKD -> bắt buộc phải upload ở lần update này
+        boolean hasBR = !isBlank(existing.getBusinessRegistrationUrl());
+        MultipartFile brFile = dto.getBusinessRegistrationFile();
+        if (!hasBR && (brFile == null || brFile.isEmpty())) {
+            throw new IllegalArgumentException("Công ty chưa có Giấy phép kinh doanh. Vui lòng upload file GPKD.");
         }
 
-        // Cập nhật các field thông thường
+        // Cập nhật các field thường (GIỮ Y NGUYÊN)
         if (!isBlank(dto.getName()) && !dto.getName().trim().equalsIgnoreCase(existing.getName())) {
             if (companyRepository.existsByNameIgnoreCase(dto.getName().trim())) {
                 throw new IllegalArgumentException("Tên công ty đã tồn tại");
@@ -220,7 +304,6 @@ public class CompanyServiceImpl implements CompanyService {
         existing.setCity(dto.getCity());
         if (dto.getSize() != null) existing.setSize(Company.CompanySize.valueOf(dto.getSize()));
         existing.setFoundedYear(dto.getFoundedYear());
-
         if (!isBlank(dto.getTaxCode()) && !dto.getTaxCode().trim().equalsIgnoreCase(existing.getTaxCode())) {
             if (companyRepository.existsByTaxCodeIgnoreCase(dto.getTaxCode().trim())) {
                 throw new IllegalArgumentException("Mã số thuế đã tồn tại");
@@ -228,17 +311,20 @@ public class CompanyServiceImpl implements CompanyService {
             existing.setTaxCode(dto.getTaxCode().trim());
         }
 
-        // Cập nhật GPKD nếu có gửi URL mới
-        if (!isBlank(dto.getBusinessRegistrationUrl())) {
-            existing.setBusinessRegistrationUrl(dto.getBusinessRegistrationUrl().trim());
+        // Nếu có file mới -> lưu & overwrite theo companyId
+        if (brFile != null && !brFile.isEmpty()) {
+            String path = saveBusinessRegistrationFile(brFile, companyId);
+            existing.setBusinessRegistrationUrl(path);
             existing.setBusinessRegistrationFileName(
-                    isBlank(dto.getBusinessRegistrationFileName()) ? "GPKD.pdf" : dto.getBusinessRegistrationFileName().trim()
-            );
+                    (brFile.getOriginalFilename() == null || brFile.getOriginalFilename().isBlank())
+                            ? "GPKD" : brFile.getOriginalFilename().trim());
             existing.setBusinessRegistrationUploadedAt(Timestamp.from(Instant.now()));
         }
 
-        return companyMapper.companyEntityToCompanyDTO(companyRepository.save(existing));
+        Company updated = companyRepository.save(existing);
+        return companyMapper.companyEntityToCompanyDTO(updated);
     }
+
     @Override
     public void deleteCompany(UUID id) {
         if (!companyRepository.existsById(id)) {
