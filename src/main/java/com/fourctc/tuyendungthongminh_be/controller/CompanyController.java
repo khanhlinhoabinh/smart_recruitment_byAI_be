@@ -7,6 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
@@ -127,21 +128,32 @@ public class CompanyController {
         CompanyDTO dto = companyService.requestVerificationForCompany(companyId, principal);
         return ResponseEntity.ok(dto);
     }
-    // Tạo công ty cho HR – BẮT BUỘC có businessRegistrationUrl
+
+    // Tạo công ty cho HR — ĐỔI sang multipart (upload GPKD)
     @PreAuthorize("hasRole('HR')")
-    @PostMapping("/hr")
-    public ResponseEntity<CompanyDTO> createCompanyForHR(@RequestBody CompanyDTO dto, Principal principal) {
+    @PostMapping(value = "/hr", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CompanyDTO> createCompanyForHR(
+            @ModelAttribute CompanyDTO dto,
+            @RequestPart(value = "businessRegistrationFile", required = false) MultipartFile businessRegistrationFile,
+            Principal principal) {
+
+        dto.setBusinessRegistrationFile(businessRegistrationFile); // gán file vào DTO cho service xử lý
         CompanyDTO result = companyService.createCompanyForHR(dto, principal.getName());
         return ResponseEntity.ok(result);
     }
 
+    // Cập nhật công ty cho HR — ĐỔI sang multipart (upload GPKD)
     @PreAuthorize("hasRole('HR')")
-    @PutMapping("/hr/{id}")
+    @PutMapping(value = "/hr/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CompanyDTO> updateCompanyForHR(
             @PathVariable UUID id,
-            @RequestBody CompanyDTO dto,
+            @ModelAttribute CompanyDTO dto,
+            @RequestPart(value = "businessRegistrationFile", required = false) MultipartFile businessRegistrationFile,
             Principal principal) {
+
+        dto.setBusinessRegistrationFile(businessRegistrationFile);
         CompanyDTO result = companyService.updateCompanyForHR(id, dto, principal.getName());
         return ResponseEntity.ok(result);
     }
+
 }

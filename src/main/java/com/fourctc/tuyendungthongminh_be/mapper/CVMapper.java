@@ -11,10 +11,12 @@ public interface CVMapper {
     @Mapping(source = "template.id", target = "templateId")
     @Mapping(source = "userId", target = "userId")
     @Mapping(source = "data", target = "data", qualifiedByName = "stringToMap")
+    @Mapping(target = "imageUrl", source = "imageUrl")
     CVDTO cvEntityToCVDTO(CV cv);
 
     @Mapping(target = "template.id", source = "templateId")
     @Mapping(target = "userId", source = "userId")
     @Mapping(source = "data", target = "data", qualifiedByName = "mapToString")
+    @Mapping(target = "imageUrl", source = "imageUrl")
     CV cvDTOToCVEntity(CVDTO cvDTO);
 }

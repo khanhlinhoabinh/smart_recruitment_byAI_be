@@ -10,7 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
+import java.util.HashMap;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -47,6 +47,36 @@ public class CVController {
         UUID userId = getCurrentUserId(authentication);
         CVDTO saved = cvService.createCVWithAuth(dto, userId);
         return ResponseEntity.ok(saved);
+    }
+    // UPLOAD AVATAR ẢNH CV
+    @PostMapping(
+            value = "/upload-avatar",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<?> uploadAvatar(
+            @RequestParam("file") MultipartFile file,
+            Authentication authentication
+    ) throws IOException {
+
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("File không được để trống");
+        }
+
+        UUID userId = getCurrentUserId(authentication);
+
+        String uploadDir = System.getProperty("user.dir") + "/uploads/avatar/";
+        new File(uploadDir).mkdirs();
+
+        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        Path filePath = Paths.get(uploadDir + fileName);
+        file.transferTo(filePath.toFile());
+
+        String fileUrl = "http://localhost:8080/uploads/avatar/" + fileName;
+
+        Map<String, String> response = new HashMap<>();
+        response.put("url", fileUrl);
+
+        return ResponseEntity.ok(response);
     }
 
     // LẤY DANH SÁCH CV CỦA TÔI

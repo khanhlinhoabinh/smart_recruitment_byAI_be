@@ -47,6 +47,7 @@ public class CVService {
 
         cv.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         cv.setUpdatedAt(cv.getCreatedAt());
+        cv.setImageUrl(dto.getImageUrl());
 
         // Convert Map -> JSON
         if (dto.getData() != null && !dto.getData().isEmpty()) {
@@ -122,6 +123,21 @@ public class CVService {
 
         cv.setTitle(dto.getTitle());
         cv.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        cv.setImageUrl(dto.getImageUrl());
+
+
+// ✅ Cập nhật visibility nếu FE gửi lên
+          if (dto.getVisibility() != null && !dto.getVisibility().isBlank()) {
+              cv.setVisibility(CV.Visibility.valueOf(dto.getVisibility().toUpperCase()));
+              }
+                   // ✅ QUAN TRỌNG: cập nhật Template theo templateId mới
+                            if (dto.getTemplateId() != null) {
+                  Template template = templateRepository.findById(dto.getTemplateId())
+                               .orElseThrow(() -> new RuntimeException("Template not found"));
+                    cv.setTemplate(template);
+               }
+           // (Nếu muốn cho phép xóa template, thêm else { cv.setTemplate(null); })
+
 
         if (dto.getData() != null) {
             try {
