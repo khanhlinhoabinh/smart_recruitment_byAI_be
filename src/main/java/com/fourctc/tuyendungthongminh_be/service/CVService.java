@@ -47,6 +47,7 @@ public class CVService {
 
         cv.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         cv.setUpdatedAt(cv.getCreatedAt());
+        cv.setImageUrl(dto.getImageUrl());
 
         // Convert Map -> JSON
         if (dto.getData() != null && !dto.getData().isEmpty()) {
@@ -122,6 +123,7 @@ public class CVService {
 
         cv.setTitle(dto.getTitle());
         cv.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        cv.setImageUrl(dto.getImageUrl());
 
 
 // ✅ Cập nhật visibility nếu FE gửi lên

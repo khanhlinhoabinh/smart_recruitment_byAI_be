@@ -17,6 +17,7 @@ public class CVDTO {
     private UUID id;
     private UUID userId;
     private String cvUrl;
+    private String imageUrl;
     private String title;
     private String visibility;
     private Timestamp createdAt;
