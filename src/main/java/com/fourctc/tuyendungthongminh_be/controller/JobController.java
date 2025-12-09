@@ -94,5 +94,10 @@ public class JobController {
         List<JobDTO> jobs = jobService.getJobsOfMyCompany(principal);
         return ResponseEntity.ok(jobs);
     }
+    @GetMapping("/public/company/{companyId}")
+    public ResponseEntity<?> getJobsByCompany(@PathVariable UUID companyId) {
+        return ResponseEntity.ok(jobService.getJobsByCompany(companyId));
+    }
+
 
 }

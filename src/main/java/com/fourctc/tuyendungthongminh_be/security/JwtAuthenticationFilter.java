@@ -75,6 +75,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 path.equals("/companies/featured")||
                 path.equals("/jobs/search") ||
                 path.equals("/jobs/latest") ||
+                path.equals("/jobs/public/company/{companyId}") ||
                 path.equals("/jobs/approved");
     }
 }

@@ -16,6 +16,8 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
     @Query("SELECT j FROM Job j WHERE j.status = :status ORDER BY j.createdAt DESC")
     List<Job> findLatestJobs(@Param("status") Job.JobStatus status, Pageable pageable);
 
+    List<Job> findByCompany_CompanyIdAndStatus(UUID companyId, Job.JobStatus status);
+
     List<Job> findByCompany_CompanyId(UUID companyId);
     @Query("SELECT j FROM Job j WHERE j.status = :status " +
             "AND (:keyword IS NULL OR LOWER(j.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(j.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
