@@ -51,7 +51,9 @@ public class SecurityConfig {
                                 "/jobs/approved",
                                 "/jobs/latest",
                                 "/job-categories",
-                                "/jobs/{id}"
+                                "/jobs/{id}",
+                                "jobs/public/company/{companyId}"
+
                         ).permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")

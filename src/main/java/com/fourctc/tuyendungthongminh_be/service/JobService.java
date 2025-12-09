@@ -213,5 +213,19 @@ public class JobService {
                 .map(jobMapper::toDTO)
                 .collect(Collectors.toList());
     }
+    // ========================= PUBLIC — GET JOB BY COMPANY ID =========================
+    public List<JobDTO> getJobsByCompany(UUID companyId) {
+
+        Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new IllegalArgumentException("Company không tồn tại"));
+
+        List<Job> jobs = jobRepository.findByCompany_CompanyIdAndStatus(
+                companyId, Job.JobStatus.APPROVED
+        );
+
+        return jobs.stream()
+                .map(jobMapper::toDTO)
+                .collect(Collectors.toList());
+    }
 
 }
