@@ -1,6 +1,7 @@
 
 package com.fourctc.tuyendungthongminh_be.service;
 
+import com.fourctc.tuyendungthongminh_be.dto.ApplicationStatusDTO;
 import com.fourctc.tuyendungthongminh_be.dto.ApplicationDTO;
 import com.fourctc.tuyendungthongminh_be.dto.ApplicationRequest;
 import com.fourctc.tuyendungthongminh_be.entity.*;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
@@ -108,4 +110,28 @@ public class ApplicationService {
 
         return applicationMapper.applicationEntityToApplicationDTO(application);
     }
+
+
+// Kiểm tra trạng thái ứng tuyển của ứng viên (lấy từ email đăng nhập) cho một Job
+    public ApplicationStatusDTO getMyApplicationStatus(String userEmail, UUID jobId) {
+        User user = userRepository.findByEmail(userEmail);
+        if (user == null || user.getRole() != User.Role.CANDIDATE) {
+            throw new RuntimeException("Người dùng không phải ứng viên");
+        }
+
+        Candidate candidate = candidateRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("Candidate không tồn tại"));
+
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job không tồn tại"));
+
+        long count = applicationRepository.countByCandidateAndJob(candidate, job);
+
+        // Repo trả Timestamp; convert sang LocalDateTime để JSON đẹp
+        java.sql.Timestamp lastTs = applicationRepository.findLastAppliedAt(candidate, job);
+        LocalDateTime lastAppliedAt = (lastTs != null) ? lastTs.toLocalDateTime() : null;
+
+        return new ApplicationStatusDTO(count > 0, count, lastAppliedAt);
+    }
+
 }

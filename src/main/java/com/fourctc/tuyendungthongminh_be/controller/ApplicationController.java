@@ -1,6 +1,7 @@
 
 package com.fourctc.tuyendungthongminh_be.controller;
 
+import com.fourctc.tuyendungthongminh_be.dto.ApplicationStatusDTO;
 import com.fourctc.tuyendungthongminh_be.dto.ApplicationDTO;
 import com.fourctc.tuyendungthongminh_be.dto.ApplicationRequest;
 import com.fourctc.tuyendungthongminh_be.entity.Application;
@@ -71,5 +72,13 @@ public class ApplicationController {
     public ApplicationDTO updateApplicationStatus(@PathVariable UUID applicationId,
                                                   @RequestParam Application.ApplicationStatus status) {
         return applicationService.updateApplicationStatus(applicationId, status);
+    }
+
+    // ✅ Ứng viên kiểm tra trạng thái ứng tuyển cho một Job
+    @GetMapping("/status")
+    public ApplicationStatusDTO getMyApplicationStatus(@RequestParam UUID jobId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+        return applicationService.getMyApplicationStatus(userEmail, jobId);
     }
 }
