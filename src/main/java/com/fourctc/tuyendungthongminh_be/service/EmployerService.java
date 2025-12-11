@@ -36,4 +36,5 @@ public interface EmployerService {
     EmployerDTO requestVerification(UUID employerId, Principal principal);
     EmployerDTO approveVerification(UUID employerId, Principal principal);
     EmployerDTO rejectVerification(UUID employerId, String reason, Principal principal);
+    List<EmployerDTO> getAllEmployers();
 }
