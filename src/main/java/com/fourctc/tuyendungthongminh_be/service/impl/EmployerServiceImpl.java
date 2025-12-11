@@ -306,4 +306,13 @@ public class EmployerServiceImpl implements EmployerService {
                 .map(employerMapper::employerEntityToEmployerDTO)
                 .toList();
     }
+
+    @Override
+    public List<EmployerDTO> getAllEmployers() {
+        return employerRepository.findAll()
+                .stream()
+                .map(employerMapper::employerEntityToEmployerDTO)
+                .toList();
+    }
+
 }
