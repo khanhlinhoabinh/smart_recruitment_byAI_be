@@ -122,4 +122,12 @@ public class EmployerController {
         // Lấy danh sách employer thuộc công ty của HR hiện tại
         return ResponseEntity.ok(employerService.getEmployersByCurrentHrCompany(principal));
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("")
+    public ResponseEntity<List<EmployerDTO>> getAllEmployers() {
+        List<EmployerDTO> dtos = employerService.getAllEmployers();
+        return ResponseEntity.ok(dtos);
+    }
+
 }
