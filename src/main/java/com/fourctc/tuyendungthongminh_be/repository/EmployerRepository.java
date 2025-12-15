@@ -15,6 +15,10 @@ public interface EmployerRepository extends JpaRepository<Employer, UUID> {
     @EntityGraph(attributePaths = {"user", "company"})
     Optional<Employer> findByEmployerId(UUID employerId);
 
+
+    @EntityGraph(attributePaths = {"user", "company"})
+    List<Employer> findAll(); // ✅ thêm để list luôn có user/company
+
     @EntityGraph(attributePaths = {"user", "company"})
     Optional<Employer> findByUser_Email(String email);
 
