@@ -47,5 +47,8 @@ public class Employer {
     @Column(name = "labor_contract_path", length = 500)
     private String laborContractPath;
 
+    // Trong class Employer.java
+    @Column(columnDefinition = "TEXT")
+    private String rejectionReason;
 
 }

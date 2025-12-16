@@ -283,6 +283,7 @@ public class EmployerServiceImpl implements EmployerService {
 
         employer.setVerified(false);
         employer.setVerifiedAt(null);
+        employer.setRejectionReason(reason != null && !reason.isBlank() ? reason : "Không có lý do cụ thể");
         // Có thể thêm cột rejected_reason nếu cần
 
         employerRepository.save(employer);

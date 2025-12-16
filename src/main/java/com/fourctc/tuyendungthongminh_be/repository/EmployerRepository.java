@@ -33,4 +33,6 @@ public interface EmployerRepository extends JpaRepository<Employer, UUID> {
 
     List<Employer> findByCompany_CompanyId(UUID companyId);
     List<Employer> findByCompany_CompanyIdAndVerifiedTrue(UUID companyId);
+
+    List<Employer> findByVerifiedFalseAndRejectionReasonIsNull();
 }
