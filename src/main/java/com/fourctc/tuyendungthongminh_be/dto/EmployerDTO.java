@@ -28,6 +28,7 @@ public class EmployerDTO {
     private String phone;
     private boolean verified;
     private Timestamp verifiedAt;
+    private String rejectionReason;
 
     @JsonIgnore                  // input, không trả về JSON
     private MultipartFile laborContractFile;
