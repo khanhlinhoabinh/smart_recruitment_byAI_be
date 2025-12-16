@@ -37,4 +37,7 @@ public class JobCategory {
 
     @Column(name = "created_by", length = 100)
     private String createdBy;
+
+    @Column(name = "icon_url", length = 500)
+    private String iconUrl;
 }
