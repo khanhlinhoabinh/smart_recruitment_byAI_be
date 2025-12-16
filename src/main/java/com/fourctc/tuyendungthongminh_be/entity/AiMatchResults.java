@@ -14,6 +14,10 @@ import java.util.UUID;
 @Table(name = "ai_match_results")
 public class AiMatchResults {
 
+
+
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "match_id", nullable = false, unique = true)
