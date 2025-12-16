@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
@@ -29,15 +31,25 @@ public class JobCategoryController {
         return ResponseEntity.ok(jobCategoryService.getAllCategories());
     }
     // HR/Admin thêm ngành nghề
-    @PreAuthorize("hasAnyRole('HR','ADMIN')")
+    // Tạo mới
     @PostMapping
-    public ResponseEntity<JobCategoryDTO> createCategory(@RequestBody JobCategoryDTO dto, Principal principal) {
-        return ResponseEntity.ok(jobCategoryService.createCategory(dto, principal.getName()));
-    }
-    // HR/Admin sửa ngành nghề
     @PreAuthorize("hasAnyRole('HR','ADMIN')")
+    public ResponseEntity<JobCategoryDTO> createCategory(
+            @RequestBody JobCategoryDTO dto,
+            Principal principal) {
+
+        return ResponseEntity.ok(
+                jobCategoryService.createCategory(dto, principal.getName())
+        );
+    }
+
+    // Sửa
     @PutMapping("/{id}")
-    public ResponseEntity<JobCategoryDTO> updateCategory(@PathVariable UUID id, @RequestBody JobCategoryDTO dto) {
+    @PreAuthorize("hasAnyRole('HR','ADMIN')")
+    public ResponseEntity<JobCategoryDTO> updateCategory(
+            @PathVariable UUID id,
+            @RequestBody JobCategoryDTO dto) {
+
         return ResponseEntity.ok(jobCategoryService.updateCategory(id, dto));
     }
     // Admin xóa ngành nghề
