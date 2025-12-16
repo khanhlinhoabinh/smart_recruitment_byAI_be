@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.sql.Timestamp;
 
 @Service
 public class JobCategoryService {
@@ -34,9 +35,14 @@ public class JobCategoryService {
     }
 
     public JobCategoryDTO createCategory(JobCategoryDTO dto, String createdBy) {
-        JobCategory entity = jobCategoryMapper.toEntity(dto);
+        JobCategory entity = new JobCategory();
+        entity.setName(dto.getName());
+        entity.setDescription(dto.getDescription());
+        entity.setPopular(dto.isPopular());
         entity.setCreatedBy(createdBy);
-        entity.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+        entity.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        entity.setIconUrl(dto.getIconUrl()); // THÊM DÒNG NÀY
+
         JobCategory saved = jobCategoryRepository.save(entity);
         return jobCategoryMapper.toDTO(saved);
     }
@@ -44,9 +50,12 @@ public class JobCategoryService {
     public JobCategoryDTO updateCategory(UUID id, JobCategoryDTO dto) {
         JobCategory existing = jobCategoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+
         existing.setName(dto.getName());
         existing.setDescription(dto.getDescription());
         existing.setPopular(dto.isPopular());
+        existing.setIconUrl(dto.getIconUrl()); // THÊM DÒNG NÀY
+
         JobCategory updated = jobCategoryRepository.save(existing);
         return jobCategoryMapper.toDTO(updated);
     }
