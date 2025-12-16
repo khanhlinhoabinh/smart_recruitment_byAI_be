@@ -108,7 +108,9 @@ public class EmployerController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/pending-verification")
     public ResponseEntity<List<EmployerDTO>> getPendingVerificationEmployers() {
-        List<Employer> pending = employerRepository.findByVerifiedFalse();
+        // Chỉ lấy những hồ sơ verified = false VÀ CHƯA bị từ chối (rejectionReason = null)
+        List<Employer> pending = employerRepository.findByVerifiedFalseAndRejectionReasonIsNull();
+
         List<EmployerDTO> dtos = pending.stream()
                 .map(employerMapper::employerEntityToEmployerDTO)
                 .toList();
