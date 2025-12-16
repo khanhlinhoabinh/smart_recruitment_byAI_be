@@ -43,6 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String role = jwtUtil.extractRole(token);
                 List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
+
                 // Debug log (có thể xóa sau khi ổn định)
                 System.out.println("[JWT Filter] User: " + email + " | Role: " + role + " | Authority: ROLE_" + role);
 
