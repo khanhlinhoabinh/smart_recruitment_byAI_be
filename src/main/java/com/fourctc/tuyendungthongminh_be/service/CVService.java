@@ -110,6 +110,7 @@ public class CVService {
         } else {
             result.put("data", new HashMap<>());
         }
+        result.put("cvUrl", cv.getCvUrl());
 
         return result;
     }
