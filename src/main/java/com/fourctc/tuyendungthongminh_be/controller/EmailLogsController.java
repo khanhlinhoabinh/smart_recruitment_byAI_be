@@ -11,6 +11,7 @@ import java.util.UUID;
 @RequestMapping("/email-logs")
 public class EmailLogsController {
 
+
     @Autowired
     private EmailLogsService emailLogsService;
 
