@@ -49,6 +49,7 @@ public class User {
     @Column(name = "reset_token", length = 255)
     private String resetToken;
 
+
     @Column(name = "reset_token_expiry")
     private Timestamp resetTokenExpiry;
 
