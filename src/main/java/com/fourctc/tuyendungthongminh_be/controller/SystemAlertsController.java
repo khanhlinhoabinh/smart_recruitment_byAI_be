@@ -11,6 +11,7 @@ import java.util.UUID;
 @RequestMapping("/system-alerts")
 public class SystemAlertsController {
 
+
     @Autowired
     private SystemAlertsService systemAlertsService;
 
