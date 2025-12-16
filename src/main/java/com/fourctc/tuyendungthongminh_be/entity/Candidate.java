@@ -37,6 +37,9 @@ public class Candidate {
     @Column(name = "photo_url", length = 255)
     private String photoUrl;
 
+
+
+
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
