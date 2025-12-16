@@ -15,6 +15,7 @@ public class EmployerController {
     @Autowired
     private EmployerService employerService;
 
+
     @PreAuthorize("hasAnyRole('HR','ADMIN')")
     @GetMapping("/employer/dashboard")
     public String employerDashboard() {
