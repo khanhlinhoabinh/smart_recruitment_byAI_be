@@ -18,7 +18,8 @@ public interface EmployerMapper {
             @Mapping(source = "verified", target = "verified"),
             @Mapping(source = "verifiedAt", target = "verifiedAt"),
             @Mapping(source = "laborContractPath", target = "laborContractPath"), // <-- map path ra DTO
-            @Mapping(source = "user.phone",    target = "phone")
+            @Mapping(source = "user.phone",    target = "phone"),
+            @Mapping(source = "rejectionReason", target = "rejectionReason")
     })
     EmployerDTO employerEntityToEmployerDTO(Employer employer);
 
